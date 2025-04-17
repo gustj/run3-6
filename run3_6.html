@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase 기록 비교</title>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    input, button { margin: 0.5rem 0; padding: 0.5rem; }
+    canvas { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Firebase 기록 입력</h1>
+  <input id="nameInput" placeholder="이름 입력">
+  <input id="scoreInput" placeholder="기록 입력 (숫자)" type="number">
+  <button onclick="addRecord()">기록 추가</button>
+
+  <canvas id="myChart" width="600" height="400"></canvas>
+
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOR6JDTeZu9pk3_bcvN6oaa6KE0uUOyQ0",
+      authDomain: "run3-6.firebaseapp.com",
+      projectId: "run3-6",
+      storageBucket: "run3-6.firebasestorage.app",
+      messagingSenderId: "1095413394899",
+      appId: "1:1095413394899:web:560a45543a50ccb8b81326"
+    };
+
+  // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const collection = db.collection("records");
+    let chartInstance = null;
+
+    window.addRecord = async function () {
+      const name = document.getElementById("nameInput").value.trim();
+      const score = parseInt(document.getElementById("scoreInput").value);
+      if (!name || isNaN(score)) return alert("이름과 숫자를 정확히 입력해주세용");
+
+      await collection.add({
+        name,
+        score,
+        timestamp: new Date().toISOString()
+      });
+      alert("기록이 저장되었습니다");
+      drawChart();
+    }
+
+    window.drawChart = async function () {
+      const snapshot = await collection.get();
+      const dataMap = {};
+
+      snapshot.forEach(doc => {
+        const { name, score } = doc.data();
+        if (!dataMap[name]) dataMap[name] = 0;
+        dataMap[name] += score;
+      });
+
+      const labels = Object.keys(dataMap);
+      const values = labels.map(name => dataMap[name]);
+
+      const ctx = document.getElementById("myChart").getContext("2d");
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "누적 기록",
+            data: values,
+            backgroundColor: "rgba(54, 162, 235, 0.6)"
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          scales: {
+            x: { beginAtZero: true }
+          }
+        }
+      });
+    }
+    window.onload = drawChart;
+  </script>
+</body>
+</html>
