@@ -159,10 +159,12 @@
               }
             }
           }
-        }
+        },
+        plugins: [Chart.registry.getPlugin('annotation')]
       });
     }
     window.onload = drawChart;
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
 </body>
 </html>
