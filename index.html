@@ -55,7 +55,8 @@
     let chartInstance = null;
 
     window.addRecord = async function () {
-      const name = document.getElementById("nameInput").value.trim();
+      const name = document.getElementById("nameSelect").value.trim();
+      // const name = document.getElementById("nameInput").value.trim();
       const score = parseFloat(document.getElementById("scoreInput").value);
       if (!name || isNaN(score)) return alert("이름과 숫자를 정확히 입력해주세용");
 
@@ -105,7 +106,21 @@
           indexAxis: 'y',
           responsive: true,
           scales: {
-            x: { beginAtZero: true }
+            x: { 
+              beginAtZero: true 
+              ticks :{
+                font: {
+                  size: 32
+                }
+              }
+            },
+            y: {  
+              ticks :{
+                font: {
+                  size: 32
+                }
+              }
+            }
           }
         }
       });
