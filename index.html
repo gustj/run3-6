@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: sans-serif; margin: 2rem; }
-    input, button { margin: 0.5rem 0; padding: 0.5rem; font-size: 1.5rem}
+    input, button { margin: 0.5rem 0; padding: 1rem; font-size: 1.5rem}
     canvas { margin-top: 2rem; }
   </style>
 </head>
@@ -80,10 +80,10 @@
 
       const dataArray = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
       const labels = dataArray.map(item => item[0]);
-      // const labels = dataArray.map((item, index) => {
-      //   const emoji = index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : '🏃‍♀️‍➡️';
-      //   return item[0] + emoji;
-      // });
+      const labels = dataArray.map((item, index) => {
+        const emoji = index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : '';
+        return item[0] + emoji;
+      });
       const values = dataArray.map(item => item[1]);
 
       const decoratedLabels = labels.map((label, i) => `${label}  🏃‍♀️‍➡️`);
