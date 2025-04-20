@@ -69,6 +69,15 @@
       drawChart();
     }
 
+    function getTargetDistance() {
+      const startDate = new Date("2025-04-17T00:00:00+09:00");
+      const now = new Date();
+      const seoulOffset = 9 * 60 * 60 * 1000;
+      const today = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + seoulOffset);
+      const daysPassed = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1);
+      return Math.min(100, daysPassed); // 하루 1km, 최대 100km
+    }
+
     window.drawChart = async function () {
       const snapshot = await collection.get();
       const dataMap = {};
@@ -86,6 +95,7 @@
         return item[0] + emoji;
       });
       const values = dataArray.map(item => item[1]);
+      const targetDistance = getTargetDistance();
 
       const decoratedLabels = labels.map((label, i) => `${label}  🏃‍♀️‍➡️`);
       const ctx = document.getElementById("myChart").getContext("2d");
@@ -105,6 +115,33 @@
         options: {
           indexAxis: 'y',
           responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                font: {
+                  size: 20
+                }
+              }
+            },
+            annotation: {
+              annotations: {
+                line1: {
+                  type: 'line',
+                  borderColor: 'red',
+                  borderWidth: 2,
+                  xMin: targetDistance,
+                  xMax: targetDistance,
+                  label: {
+                    enabled: true,
+                    content: `목표 ${targetDistance}km`,
+                    position: 'start',
+                    backgroundColor: 'red',
+                    color: 'white'
+                  }
+                }
+              }
+            }
+          },
           scales: {
             x: { 
               beginAtZero: true,
