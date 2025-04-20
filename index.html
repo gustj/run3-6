@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: sans-serif; margin: 2rem; }
-    input, button { margin: 0.5rem 0; padding: 1rem; font-size: 1.5rem}
+    label, input, button { margin: 0.5rem 0; padding: 1rem; font-size: 1.5rem}
     canvas { margin-top: 2rem; }
   </style>
 </head>
@@ -24,7 +24,7 @@
     <option value="희연">희연</option>
     <option value="예선">예선</option>
   </select>
-  <input id="scoreInput" placeholder="기록 입력 (숫자 또는 소수점)" type="number" step="any">
+  <input id="scoreInput" placeholder="기록 입력" type="number" step="any">
   <button onclick="addRecord()">기록 추가</button>
 
   <canvas id="myChart" width="400" height="300"></canvas>
