@@ -54,18 +54,35 @@
     const collection = db.collection("records");
     let chartInstance = null;
 
+    const emojiPlugin = {
+      id: 'emojiPlugin',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        const dataset = chart.data.datasets[0].data;
+        const yScale = chart.scales.y;
+        const xScale = chart.scales.x;
+        ctx.font = '24px sans-serif';
+        ctx.textBaseline = 'middle';
+        dataset.forEach((value, index) => {
+          const y = yScale.getPixelForValue(index);
+          const x = xScale.getPixelForValue(value);
+          ctx.fillText('🏃‍♀️', x + 8, y);
+        });
+      }
+    };
+
     window.addRecord = async function () {
       const name = document.getElementById("nameSelect").value.trim();
       // const name = document.getElementById("nameInput").value.trim();
       const score = parseFloat(document.getElementById("scoreInput").value);
-      if (!name || isNaN(score)) return alert("이름과 숫자를 정확히 입력해주세용");
+      if (!name || isNaN(score)) return alert("숫자를 정확히 입력해주세용");
 
       await collection.add({
         name,
         score,
         timestamp: new Date().toISOString()
       });
-      alert("기록이 저장되었습니다");
+      alert("고생하셨습니다👏");
       drawChart();
     }
 
@@ -91,7 +108,7 @@
       const dataArray = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
       // const labels = dataArray.map(item => item[0]);
       const labels = dataArray.map((item, index) => {
-        const emoji = index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : '';
+        const emoji = index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : item === 0 ? ' 🥺' : '';
         return item[0] + emoji;
       });
       const values = dataArray.map(item => item[1]);
@@ -148,24 +165,11 @@
             }
           },
           scales: {
-            x: { 
-              beginAtZero: true,
-              ticks :{
-                font: {
-                  size: 32
-                }
-              }
-            },
-            y: {  
-              ticks :{
-                font: {
-                  size: 32
-                }
-              }
-            }
+            x: { beginAtZero: true, ticks :{ font: { size: 32 } } },
+            y: { ticks :{ font: { size: 32 } } }
           }
         },
-        plugins: [Chart.registry.getPlugin('annotation')]
+        plugins: [Chart.registry.getPlugin('annotation'), emojiPlugin]
       });
     }
     window.onload = drawChart;
