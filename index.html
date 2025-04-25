@@ -61,12 +61,12 @@
         const dataset = chart.data.datasets[0].data;
         const yScale = chart.scales.y;
         const xScale = chart.scales.x;
-        ctx.font = '24px sans-serif';
+        ctx.font = '30px sans-serif';
         ctx.textBaseline = 'middle';
         dataset.forEach((value, index) => {
           const y = yScale.getPixelForValue(index);
           const x = xScale.getPixelForValue(value);
-          ctx.fillText('🏃‍♀️', x + 8, y);
+          ctx.fillText('🏃‍♀️‍➡️', x + 5, y);
         });
       }
     };
@@ -108,7 +108,7 @@
       const dataArray = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
       // const labels = dataArray.map(item => item[0]);
       const labels = dataArray.map((item, index) => {
-        const emoji = index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : item === 0 ? ' 🥺' : '';
+        const emoji = index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : '';
         return item[0] + emoji;
       });
       const values = dataArray.map(item => item[1]);
