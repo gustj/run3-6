@@ -139,7 +139,7 @@
                 label: ctx => {
                   const value = ctx.raw;
                   const remain = Math.max(targetDistance - value, 0);
-                  return `${ctx.label}: ${value}km (남은 ${remain}km)`;
+                  return `${value}km\n(남은 거리 ${remain.toFixed(3)}km)`;
                 }
               },
               titleFont: { size: 20 },
