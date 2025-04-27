@@ -61,12 +61,12 @@
         const dataset = chart.data.datasets[0].data;
         const yScale = chart.scales.y;
         const xScale = chart.scales.x;
-        ctx.font = '30px sans-serif';
+        ctx.font = '40px sans-serif';
         ctx.textBaseline = 'middle';
         dataset.forEach((value, index) => {
           const y = yScale.getPixelForValue(index);
           const x = xScale.getPixelForValue(value);
-          ctx.fillText('🏃‍♀️‍➡️', x + 5, y);
+          ctx.fillText('🏃‍♀️‍➡️', x + 1, y);
         });
       }
     };
@@ -133,12 +133,17 @@
           indexAxis: 'y',
           responsive: true,
           plugins: {
-            legend: {
-              labels: {
-                font: {
-                  size: 20
+            legend: { labels: { font: { size: 20 } } },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const value = ctx.raw;
+                  const remain = Math.max(targetDistance - value, 0);
+                  return `${ctx.label}: ${value}km (남은 ${remain}km)`;
                 }
-              }
+              },
+              titleFont: { size: 20 },
+              bodyFont: { size: 20 }
             },
             annotation: {
               annotations: {
