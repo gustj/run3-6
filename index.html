@@ -82,7 +82,7 @@
         score,
         timestamp: new Date().toISOString()
       });
-      alert("고생하셨습니다👏");
+      alert("고생하셨습니다👏👏👏");
       drawChart();
     }
 
@@ -139,7 +139,7 @@
                 label: ctx => {
                   const value = ctx.raw;
                   const remain = Math.max(targetDistance - value, 0);
-                  return `${value}km\n(남은 거리 ${remain.toFixed(3)}km)`;
+                  return ` ${value}km (-${remain.toFixed(2)}km)`;
                 }
               },
               titleFont: { size: 20 },
