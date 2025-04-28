@@ -28,8 +28,9 @@
   <button onclick="addRecord()">기록 추가</button>
 
   <canvas id="myChart" width="400" height="300"></canvas>
+  
   <h2>최근 기록 (최신순)</h2>
-  <table id="recordTable" border="1" cellpadding="8">
+  <table id="recordTable", width="400">
     <thead>
       <tr>
         <th>이름</th>
@@ -215,9 +216,8 @@
         },
         plugins: [Chart.registry.getPlugin('annotation'), emojiPlugin]
       });
-    }
+    };
     window.onload = drawChart;
-
-</script>
+  </script>
 </body>
 </html>
