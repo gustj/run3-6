@@ -2,14 +2,50 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>3학년6반 러닝챌린지 </title>
+  <title>3학년6반 러닝챌린지</title>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
   <style>
     body { font-family: sans-serif; margin: 2rem; }
-    label, input, button, option, select { margin: 0.5rem 0; padding: 1rem; font-size: 1.5rem}
-    canvas { margin-top: 2rem; }
+    input, select, button {
+      margin: 0.5rem 0;
+      padding: 1rem;
+      font-size: 1.5rem;
+    }
+    canvas, #recordTable {
+      height: 400px;
+    }
+    #recordTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+      font-size: 2rem;
+    }
+    #recordTable thead, #recordTable tbody {
+      display: block;
+    }
+    #recordTable tbody {
+      height: 400px;
+      overflow-y: auto;
+    }
+    #recordTable th, #recordTable td {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      text-align: left;
+      font-size: 2rem;
+    }
+    #recordTable thead tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+    #recordTable tbody tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
   </style>
 </head>
 <body>
@@ -29,7 +65,7 @@
 
   <canvas id="myChart" width="400" height="300"></canvas>
   
-  <h2>최근 기록 (최신순)</h2>
+  <h2>Records</h2>
   <table id="recordTable", width="400">
     <thead>
       <tr>
@@ -41,13 +77,10 @@
     <tbody></tbody>
   </table>
   
-  <script type="module">
+  <script>
     // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-
-    // Your web app's Firebase configuration
+    // import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    
     const firebaseConfig = {
       apiKey: "AIzaSyAOR6JDTeZu9pk3_bcvN6oaa6KE0uUOyQ0",
       authDomain: "run3-6.firebaseapp.com",
@@ -56,11 +89,6 @@
       messagingSenderId: "1095413394899",
       appId: "1:1095413394899:web:560a45543a50ccb8b81326"
     };
-
-  // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const collection = db.collection("records");
@@ -89,14 +117,10 @@
       const score = parseFloat(document.getElementById("scoreInput").value);
       if (!name || isNaN(score)) return alert("숫자를 정확히 입력해주세용");
 
-      await collection.add({
-        name,
-        score,
-        timestamp: new Date().toISOString()
-      });
+      await collection.add({ name, score, timestamp: new Date().toISOString() });
       alert("고생하셨습니다👏👏👏");
       drawChart();
-    }
+    };
 
     function getTargetDistance() {
       const startDate = new Date("2025-04-17T00:00:00+09:00");
@@ -132,33 +156,29 @@
 
       const records = snapshot.docs
       .map(doc => ({ ...doc.data() }))
-      .filter(rec => rec.score != 0)
+      .filter(rec => rec.score !== 0)
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       records.forEach(rec => {  // timestamp 포매팅
-      const date = new Date(rec.timestamp);
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      const h = String(date.getHours()).padStart(2, '0');
-      const min = String(date.getMinutes()).padStart(2, '0');
-      const formatted = `${y}-${m}-${d} ${h}:${min}`;
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-      <td>${rec.name}</td>
-      <td>${formatted}</td>
-      <td>${rec.score}</td>
-      `;
-
-      tbody.appendChild(tr);
+        const date = new Date(rec.timestamp);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const h = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        const formatted = `${y}-${m}-${d} ${h}:${min}`;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+        <td>${rec.name}</td>
+        <td>${formatted}</td>
+        <td>${rec.score}</td>
+        `;
+        tbody.appendChild(tr);
       });
       
       const decoratedLabels = labels.map((label, i) => `${label}  🏃‍♀️‍➡️`);
       const ctx = document.getElementById("myChart").getContext("2d");
-      if (chartInstance) {
-        chartInstance.destroy();
-      }
+      if (chartInstance) chartInstance.destroy();
       chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
