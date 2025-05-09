@@ -203,7 +203,7 @@
                 label: ctx => {
                   const value = ctx.raw;
                   const remain = Math.max(targetDistance - value, 0);
-                  return ` ${value}km (-${remain.toFixed(2)}km)`;
+                  return ` ${value.toFixed(2)}km (-${remain.toFixed(2)}km)`;
                 }
               },
               titleFont: { size: 20 },
