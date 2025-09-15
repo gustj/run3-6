@@ -53,7 +53,7 @@
   </style>
 </head>
 <body>
-  <h1>100일 50km 달리기🏃‍♀‍➡ (5/1 ~ 8/8) </h1>
+  <h1>경포를 향해 달려 🏃‍♀️‍➡️🏖 </h1>
   <label for="nameSelect">이름 선택:</label>
   <select id="nameSelect">
     <option value="현서">현서</option>
@@ -127,7 +127,7 @@
     };
 
     function getTargetDistance() {
-      const startDate = new Date("2025-05-01T00:00:00+09:00");
+      const startDate = new Date("2025-09-15T00:00:00+09:00");
       const now = new Date();
       const seoulOffset = 9 * 60 * 60 * 1000;
       const today = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + seoulOffset);
@@ -222,25 +222,6 @@
                     content: `목표 ${targetDistance}km`,
                     position: 'start',
                     backgroundColor: 'red',
-                    color: 'white',
-                    yAdjust: -20,
-                    font: {
-                      size: 18,
-                      weight: 'bold'
-                    }
-                  }
-                },
-                line2: {
-                  type: 'line',
-                  borderColor: 'blue',
-                  borderWidth: 2,
-                  xMin: 50,
-                  xMax: 50,
-                  label: {
-                    enabled: true,
-                    content: `골인!`,
-                    position: 'start',
-                    backgroundColor: 'blue',
                     color: 'white',
                     yAdjust: -20,
                     font: {
