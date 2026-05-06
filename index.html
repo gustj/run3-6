@@ -132,7 +132,7 @@
       const now = new Date();
       const seoulOffset = 9 * 60 * 60 * 1000;
       const today = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + seoulOffset);
-      const daysPassed = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1) * 0.5;
+      const daysPassed = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1);
       return Math.min(30, daysPassed); // 하루 1km, 최대 100km
     }
 
