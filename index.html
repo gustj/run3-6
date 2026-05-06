@@ -63,6 +63,7 @@
     <option value="성은">성은</option>
     <option value="희연">희연</option>
     <option value="예선">예선</option>
+    <option value="영채">영채</option>
   </select>
   <input id="scoreInput" placeholder="기록 입력" type="number" step="any">
   <button onclick="addRecord()">기록 추가</button>
@@ -127,12 +128,12 @@
     };
 
     function getTargetDistance() {
-      const startDate = new Date("2025-09-15T00:00:00+09:00");
+      const startDate = new Date("2026-05-06T00:00:00+09:00");
       const now = new Date();
       const seoulOffset = 9 * 60 * 60 * 1000;
       const today = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + seoulOffset);
       const daysPassed = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1) * 0.5;
-      return Math.min(50, daysPassed); // 하루 1km, 최대 100km
+      return Math.min(30, daysPassed); // 하루 1km, 최대 100km
     }
 
     window.drawChart = async function () {
