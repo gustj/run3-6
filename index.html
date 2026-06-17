@@ -2,698 +2,533 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>3학년6반 러닝챌린지</title>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --border: #e2e0db;
-    --text: #1a1917;
-    --muted: #6b6966;
-    --accent: #2563eb;
-    --accent-light: #eff4ff;
-    --accent-text: #1d4ed8;
-    --success: #16a34a;
-    --success-light: #f0fdf4;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 1.5rem 1rem 3rem;
-  }
-
-  .page {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  /* Header */
-  .header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    padding: 0.25rem 0 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .header h1 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-
-  .header .subtitle {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .target-badge {
-    font-size: 0.75rem;
-    color: var(--accent-text);
-    background: var(--accent-light);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  /* Summary cards */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-  }
-
-  .summary-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem 1.1rem;
-  }
-
-  .summary-card .label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 6px;
-  }
-
-  .summary-card .value {
-    font-size: 1.6rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1;
-  }
-
-  .summary-card .sub {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  /* Main layout */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 1rem;
-    align-items: start;
-  }
-
-  /* Input panel */
-  .input-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-
-  .input-panel h2 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .field label {
-    font-size: 0.8rem;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  .field select, .field input[type="number"] {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 0.95rem;
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-
-  .field select:focus, .field input[type="number"]:focus {
-    border-color: var(--accent);
-    background: #fff;
-  }
-
-  .field select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6966' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 2rem;
-  }
-
-  .add-btn {
-    width: 100%;
-    padding: 0.65rem;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-  }
-
-  .add-btn:hover { opacity: 0.9; }
-  .add-btn:active { transform: scale(0.98); }
-  .add-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border);
-  }
-
-  /* Member progress list */
-  .member-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
-  .member-row {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .member-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.82rem;
-  }
-
-  .member-name { font-weight: 500; }
-
-  .member-km {
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-    font-size: 0.78rem;
-  }
-
-  .progress-bar {
-    width: 100%;
-    height: 5px;
-    background: var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.5s ease;
-  }
-
-  /* Chart panel */
-  .chart-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-  }
-
-  .chart-panel h2 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1rem;
-  }
-
-  .chart-wrap {
-    position: relative;
-    height: 280px;
-  }
-
-  /* Records */
-  .records-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-  }
-
-  .records-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
-  .records-header h2 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .filter-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .filter-wrap label {
-    font-size: 0.78rem;
-    color: var(--muted);
-  }
-
-  .filter-wrap select {
-    font-size: 0.78rem;
-    padding: 3px 22px 3px 7px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6966' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 7px center;
-  }
-
-  .records-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.83rem;
-  }
-
-  .records-table thead th {
-    text-align: left;
-    color: var(--muted);
-    font-weight: 500;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0 0.5rem 0.6rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .records-table tbody tr {
-    border-bottom: 1px solid var(--bg);
-  }
-
-  .records-table tbody tr:hover td {
-    background: var(--bg);
-  }
-
-  .records-table tbody td {
-    padding: 0.55rem 0.5rem;
-    transition: background 0.1s;
-  }
-
-  .records-table td:last-child {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-weight: 500;
-  }
-
-  .records-table td .ts {
-    color: var(--muted);
-    font-size: 0.75rem;
-  }
-
-  .rank-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-size: 0.65rem;
-    font-weight: 600;
-    margin-right: 4px;
-    vertical-align: middle;
-  }
-
-  .rank-1 { background: #fef3c7; color: #92400e; }
-  .rank-2 { background: #f1f5f9; color: #475569; }
-  .rank-3 { background: #fef2f2; color: #92400e; }
-
-  /* Event D-Day banner */
-  .event-banner {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .event-banner.hidden { display: none; }
-
-  .event-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    min-width: 0;
-  }
-
-  .dday-chip {
-    flex-shrink: 0;
-    font-size: 1.35rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: var(--accent-text);
-    background: var(--accent-light);
-    padding: 0.35rem 0.85rem;
-    border-radius: 8px;
-    line-height: 1;
-  }
-
-  .dday-chip.today {
-    color: #fff;
-    background: var(--accent);
-  }
-
-  .dday-chip.past {
-    color: var(--muted);
-    background: var(--bg);
-  }
-
-  .event-info { min-width: 0; }
-
-  .event-name {
-    font-size: 0.95rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .event-date {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .event-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-  }
-
-  .btn-ghost {
-    padding: 0.4rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 0.78rem;
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    white-space: nowrap;
-  }
-
-  .btn-ghost:hover {
-    background: var(--bg);
-    color: var(--text);
-  }
-
-  /* Event form (inline, hidden by default) */
-  .event-form {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.1rem 1.25rem;
-    display: none;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .event-form.open { display: flex; }
-
-  .event-form h2 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .event-form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 0.6rem;
-    align-items: end;
-  }
-
-  .event-form input[type="text"],
-  .event-form input[type="date"] {
-    width: 100%;
-    padding: 0.55rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 0.88rem;
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .event-form input:focus { border-color: var(--accent); background: #fff; }
-
-  .event-form label {
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-weight: 500;
-    margin-bottom: 4px;
-    display: block;
-  }
-
-  .btn-save {
-    padding: 0.55rem 1rem;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: opacity 0.15s;
-  }
-
-  .btn-save:hover { opacity: 0.9; }
-  .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  @media (max-width: 560px) {
-    .event-form-row { grid-template-columns: 1fr; }
-    .event-banner { flex-wrap: wrap; }
-  }
-
-  .toast {
-    position: fixed;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--text);
-    color: #fff;
-    padding: 0.6rem 1.2rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s, transform 0.2s;
-    white-space: nowrap;
-    z-index: 999;
-  }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .loading {
-    color: var(--muted);
-    font-size: 0.82rem;
-    padding: 2rem 0;
-    text-align: center;
-  }
-
-  @media (max-width: 640px) {
-    .main-grid { grid-template-columns: 1fr; }
-    .summary-grid { grid-template-columns: repeat(3, 1fr); }
-    .summary-card .value { font-size: 1.3rem; }
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f4f0;
+  --surface: #fff;
+  --border: #e2e0db;
+  --text: #1a1917;
+  --muted: #6b6966;
+  --accent: #2563eb;
+  --accent-light: #eff4ff;
+  --accent-text: #1d4ed8;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --tab-h: 56px;
+  --header-h: 56px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.app-header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.app-header h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.target-badge {
+  font-size: 0.7rem;
+  color: var(--accent-text);
+  background: var(--accent-light);
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn-text {
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Scrollable content area ── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.85rem 0.85rem calc(var(--tab-h) + 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Tab panels ── */
+.tab-panel { display: none; flex-direction: column; gap: 0.75rem; }
+.tab-panel.active { display: flex; }
+
+/* ── D-Day banner ── */
+.dday-banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.dday-banner.hidden { display: none; }
+
+.dday-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--accent-text);
+  background: var(--accent-light);
+  padding: 0.3rem 0.75rem;
+  border-radius: 8px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.dday-num.today { background: var(--accent); color: #fff; }
+.dday-num.past  { background: var(--bg); color: var(--muted); }
+
+.dday-info { flex: 1; min-width: 0; }
+.dday-name { font-size: 0.95rem; font-weight: 600; }
+.dday-date { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+.dday-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-icon {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.btn-icon:active { background: var(--bg); }
+
+/* ── Event form ── */
+.event-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.event-form.open { display: flex; }
+.form-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; margin-bottom: 3px; display: block; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-input {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+}
+.form-input:focus { border-color: var(--accent); background: #fff; }
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:active { opacity: 0.85; }
+.btn-primary:disabled { opacity: 0.6; }
+
+/* ── Summary cards ── */
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.scard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 0.7rem;
+  text-align: center;
+}
+.scard-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.scard-value { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.scard-sub { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
+
+/* ── Member progress ── */
+.member-list { display: flex; flex-direction: column; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+.member-row {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.member-row:last-child { border-bottom: none; }
+
+.member-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.member-name { font-size: 0.95rem; font-weight: 600; }
+.member-stat { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.progress-bar { width: 100%; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+/* ── Chart ── */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+.section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.85rem;
+}
+.chart-wrap { position: relative; height: 260px; }
+
+/* ── Add record form (tab 2) ── */
+.add-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Name picker grid */
+.name-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+.name-btn {
+  padding: 0.75rem 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+  color: var(--text);
+  text-align: center;
+}
+.name-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+.name-btn:active { opacity: 0.75; }
+
+/* km input row */
+.km-row { display: flex; gap: 0.5rem; align-items: stretch; }
+.km-input {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1.3rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+.km-input:focus { border-color: var(--accent); background: #fff; }
+.km-unit {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0 0.5rem 0 0;
+}
+
+/* ── Records (tab 3) ── */
+.filter-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.filter-chip {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 500;
+}
+.filter-chip.active {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+.records-list { display: flex; flex-direction: column; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+.record-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--bg);
+  gap: 0.5rem;
+}
+.record-item:last-child { border-bottom: none; }
+.record-left { display: flex; flex-direction: column; gap: 2px; }
+.record-name { font-size: 0.9rem; font-weight: 600; }
+.record-ts { font-size: 0.72rem; color: var(--muted); }
+.record-km { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent-text); }
+
+.empty-msg { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 2rem 0; }
+
+/* ── Bottom tab bar ── */
+.tab-bar {
+  height: var(--tab-h);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0;
+  transition: color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn.active { color: var(--accent); }
+.tab-icon { font-size: 1.3rem; line-height: 1; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: calc(var(--tab-h) + 0.75rem);
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--text);
+  color: #fff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  white-space: nowrap;
+  z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── PC fallback ── */
+@media (min-width: 600px) {
+  .name-grid { grid-template-columns: repeat(4, 1fr); }
+  .chart-wrap { height: 300px; }
+}
 </style>
 </head>
 <body>
-<div class="page">
 
-  <div class="header">
-    <div>
-      <h1>쉬엄쉬엄 30km 달리기 🏃‍♀️</h1>
-      <p class="subtitle">3학년 6반 러닝 챌린지 · 2026.05.06 시작</p>
+<div class="app-header">
+  <h1>🏃‍♀️ 3-6 러닝챌린지</h1>
+  <div class="header-right">
+    <div class="target-badge" id="targetBadge">목표 —km</div>
+    <button class="btn-text" onclick="toggleEventForm()" id="addEventBtn">+ 대회</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- D-Day banner -->
+  <div class="dday-banner hidden" id="eventBanner">
+    <div class="dday-num" id="ddayChip">D-?</div>
+    <div class="dday-info">
+      <div class="dday-name" id="eventName">—</div>
+      <div class="dday-date" id="eventDateLabel">—</div>
     </div>
-    <div style="display:flex; align-items:center; gap:0.5rem;">
-      <div class="target-badge" id="targetBadge">오늘 목표 — km</div>
-      <button class="btn-ghost" onclick="toggleEventForm()" id="addEventBtn" style="font-size:0.75rem; padding:4px 10px;">+ 대회 등록</button>
+    <div class="dday-actions">
+      <button class="btn-icon" onclick="toggleEventForm()" title="수정">✏️</button>
+      <button class="btn-icon" onclick="deleteEvent()" title="삭제">🗑</button>
     </div>
   </div>
 
-  <!-- D-Day event banner -->
-  <div class="event-banner hidden" id="eventBanner">
-    <div class="event-left">
-      <div class="dday-chip" id="ddayChip">D-?</div>
-      <div class="event-info">
-        <div class="event-name" id="eventName">—</div>
-        <div class="event-date" id="eventDateLabel">—</div>
-      </div>
-    </div>
-    <div class="event-actions">
-      <button class="btn-ghost" onclick="toggleEventForm()">수정</button>
-      <button class="btn-ghost" onclick="deleteEvent()">삭제</button>
-    </div>
-  </div>
-
-  <!-- Event form (toggle) -->
+  <!-- Event form -->
   <div class="event-form" id="eventForm">
-    <h2>다음 대회 등록</h2>
-    <div class="event-form-row">
-      <div>
-        <label for="eventNameInput">대회 이름</label>
-        <input type="text" id="eventNameInput" placeholder="예: 서울 마라톤">
-      </div>
-      <div>
-        <label for="eventDateInput">대회 날짜</label>
-        <input type="date" id="eventDateInput">
-      </div>
-      <button class="btn-save" onclick="saveEvent()" id="saveEventBtn">저장</button>
+    <div>
+      <label class="form-label" for="eventNameInput">대회 이름</label>
+      <input class="form-input" type="text" id="eventNameInput" placeholder="예: 서울 마라톤">
     </div>
+    <div>
+      <label class="form-label" for="eventDateInput">날짜</label>
+      <input class="form-input" type="date" id="eventDateInput">
+    </div>
+    <button class="btn-primary" onclick="saveEvent()" id="saveEventBtn">저장</button>
   </div>
 
-  <div class="summary-grid">
-    <div class="summary-card">
-      <div class="label">팀 누적</div>
-      <div class="value" id="summaryTotal">—</div>
-      <div class="sub">km 합산</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">목표 달성</div>
-      <div class="value" id="summaryAhead">—</div>
-      <div class="sub">명 달성 / 8명</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">선두</div>
-      <div class="value" id="summaryLeader" style="font-size:1.15rem; padding-top:0.2rem">—</div>
-      <div class="sub" id="summaryLeaderKm">—</div>
-    </div>
-  </div>
-
-  <div class="main-grid">
-
-    <div style="display:flex; flex-direction:column; gap:1rem;">
-      <div class="input-panel">
-        <h2>기록 추가</h2>
-        <div class="field">
-          <label for="nameSelect">이름</label>
-          <select id="nameSelect">
-            <option value="현서">현서</option>
-            <option value="설희">설희</option>
-            <option value="미정">미정</option>
-            <option value="채림">채림</option>
-            <option value="성은">성은</option>
-            <option value="희연">희연</option>
-            <option value="예선">예선</option>
-            <option value="영채">영채</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="scoreInput">거리 (km)</label>
-          <input id="scoreInput" type="number" step="0.01" min="0" placeholder="0.00">
-        </div>
-        <button class="add-btn" onclick="addRecord()" id="addBtn">추가</button>
+  <!-- Tab: 현황 -->
+  <div class="tab-panel active" id="tab-home">
+    <div class="summary-row">
+      <div class="scard">
+        <div class="scard-label">팀 누적</div>
+        <div class="scard-value" id="summaryTotal">—</div>
+        <div class="scard-sub">km</div>
       </div>
-
-      <div class="input-panel">
-        <h2>개인 현황</h2>
-        <div class="member-list" id="memberList">
-          <div class="loading">불러오는 중...</div>
-        </div>
+      <div class="scard">
+        <div class="scard-label">달성</div>
+        <div class="scard-value" id="summaryAhead">—</div>
+        <div class="scard-sub">명 / 8명</div>
+      </div>
+      <div class="scard">
+        <div class="scard-label">선두</div>
+        <div class="scard-value" id="summaryLeader" style="font-size:1.1rem;padding-top:3px">—</div>
+        <div class="scard-sub" id="summaryLeaderKm">—</div>
       </div>
     </div>
 
-    <div class="chart-panel">
-      <h2>랭킹</h2>
+    <div class="member-list" id="memberList">
+      <div class="empty-msg">불러오는 중...</div>
+    </div>
+
+    <div class="chart-card">
+      <div class="section-title">랭킹 차트</div>
       <div class="chart-wrap">
         <canvas id="myChart"></canvas>
       </div>
     </div>
-
   </div>
 
-  <div class="records-panel">
-    <div class="records-header">
-      <h2>기록 내역</h2>
-      <div class="filter-wrap">
-        <label for="filterSelect">필터</label>
-        <select id="filterSelect" onchange="renderTable()">
-          <option value="">전체</option>
-          <option value="현서">현서</option>
-          <option value="설희">설희</option>
-          <option value="미정">미정</option>
-          <option value="채림">채림</option>
-          <option value="성은">성은</option>
-          <option value="희연">희연</option>
-          <option value="예선">예선</option>
-          <option value="영채">영채</option>
-        </select>
+  <!-- Tab: 기록 추가 -->
+  <div class="tab-panel" id="tab-add">
+    <div class="add-form">
+      <div>
+        <label class="form-label">이름 선택</label>
+        <div class="name-grid" id="nameGrid">
+          <button class="name-btn selected" data-name="현서" onclick="selectName(this)">현서</button>
+          <button class="name-btn" data-name="설희" onclick="selectName(this)">설희</button>
+          <button class="name-btn" data-name="미정" onclick="selectName(this)">미정</button>
+          <button class="name-btn" data-name="채림" onclick="selectName(this)">채림</button>
+          <button class="name-btn" data-name="성은" onclick="selectName(this)">성은</button>
+          <button class="name-btn" data-name="희연" onclick="selectName(this)">희연</button>
+          <button class="name-btn" data-name="예선" onclick="selectName(this)">예선</button>
+          <button class="name-btn" data-name="영채" onclick="selectName(this)">영채</button>
+        </div>
       </div>
+      <div>
+        <label class="form-label">거리</label>
+        <div class="km-row">
+          <input class="km-input" type="number" id="scoreInput" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+          <span class="km-unit">km</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addRecord()" id="addBtn">기록 추가</button>
     </div>
-    <table class="records-table">
-      <thead>
-        <tr>
-          <th>이름</th>
-          <th>날짜</th>
-          <th style="text-align:right">거리</th>
-        </tr>
-      </thead>
-      <tbody id="recordsTbody">
-        <tr><td colspan="3" class="loading">불러오는 중...</td></tr>
-      </tbody>
-    </table>
   </div>
 
+  <!-- Tab: 기록 내역 -->
+  <div class="tab-panel" id="tab-records">
+    <div class="filter-row" id="filterRow">
+      <button class="filter-chip active" data-filter="" onclick="setFilter(this)">전체</button>
+      <button class="filter-chip" data-filter="현서" onclick="setFilter(this)">현서</button>
+      <button class="filter-chip" data-filter="설희" onclick="setFilter(this)">설희</button>
+      <button class="filter-chip" data-filter="미정" onclick="setFilter(this)">미정</button>
+      <button class="filter-chip" data-filter="채림" onclick="setFilter(this)">채림</button>
+      <button class="filter-chip" data-filter="성은" onclick="setFilter(this)">성은</button>
+      <button class="filter-chip" data-filter="희연" onclick="setFilter(this)">희연</button>
+      <button class="filter-chip" data-filter="예선" onclick="setFilter(this)">예선</button>
+      <button class="filter-chip" data-filter="영채" onclick="setFilter(this)">영채</button>
+    </div>
+    <div class="records-list" id="recordsList">
+      <div class="empty-msg">불러오는 중...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('home', this)">
+    <span class="tab-icon">📊</span>현황
+  </button>
+  <button class="tab-btn" onclick="switchTab('add', this)">
+    <span class="tab-icon">➕</span>기록 추가
+  </button>
+  <button class="tab-btn" onclick="switchTab('records', this)">
+    <span class="tab-icon">📋</span>내역
+  </button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -719,6 +554,46 @@ const COLORS = ["#2563eb","#7c3aed","#db2777","#ea580c","#16a34a","#0891b2","#d9
 let chartInstance = null;
 let allRecords = [];
 let currentEventId = null;
+let activeFilter = "";
+let selectedName = "현서";
+
+// ── Tab switching ──
+window.switchTab = function(tab, btn) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + tab).classList.add("active");
+  btn.classList.add("active");
+  document.querySelector(".content").scrollTop = 0;
+};
+
+// ── Name picker ──
+window.selectName = function(btn) {
+  document.querySelectorAll(".name-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  selectedName = btn.dataset.name;
+};
+
+// ── Filter chips ──
+window.setFilter = function(btn) {
+  document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  activeFilter = btn.dataset.filter;
+  renderRecords();
+};
+
+// ── Utils ──
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const p = n => String(n).padStart(2,"0");
+  return `${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
 function getTargetDistance() {
   const start = new Date("2026-05-06T00:00:00+09:00");
@@ -733,92 +608,196 @@ function calcDday(dateStr) {
   const kst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 9 * 3600000);
   const today = new Date(kst.getFullYear(), kst.getMonth(), kst.getDate());
   const target = new Date(dateStr + "T00:00:00");
-  const diff = Math.round((target - today) / 86400000);
-  return diff;
+  return Math.round((target - today) / 86400000);
 }
 
+function buildDataMap() {
+  const map = {};
+  MEMBERS.forEach(n => map[n] = 0);
+  allRecords.forEach(r => { if (map[r.name] !== undefined) map[r.name] += r.score; });
+  return map;
+}
+
+// ── Render: summary ──
+function renderSummary(dataMap, target) {
+  const vals = Object.values(dataMap);
+  const total = vals.reduce((a,b) => a+b, 0);
+  const ahead = vals.filter(v => v >= target).length;
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+  document.getElementById("summaryTotal").textContent = total.toFixed(1);
+  document.getElementById("summaryAhead").textContent = ahead;
+  document.getElementById("summaryLeader").textContent = sorted[0][0];
+  document.getElementById("summaryLeaderKm").textContent = sorted[0][1].toFixed(1) + "km";
+  document.getElementById("targetBadge").textContent = `목표 ${target}km`;
+}
+
+// ── Render: member list ──
+function renderMemberList(dataMap, target) {
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+  const medals = ["🥇","🥈","🥉"];
+  document.getElementById("memberList").innerHTML = sorted.map(([name, km], i) => {
+    const pct = Math.min(100, target > 0 ? (km / target) * 100 : 0);
+    const color = COLORS[MEMBERS.indexOf(name)];
+    const remain = Math.max(0, target - km);
+    const medal = medals[i] || "";
+    return `<div class="member-row">
+      <div class="member-info">
+        <span class="member-name">${medal ? medal+" " : ""}${name}</span>
+        <span class="member-stat">${km.toFixed(2)}km · 잔여 ${remain.toFixed(2)}km</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join("");
+}
+
+// ── Render: chart ──
+function renderChart(dataMap, target) {
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+  const labels = sorted.map(([n],i) => i < 3 ? ["🥇","🥈","🥉"][i]+" "+n : n);
+  const values = sorted.map(([,v]) => v);
+  const colors = sorted.map(([n]) => COLORS[MEMBERS.indexOf(n)]);
+  const ctx = document.getElementById("myChart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{ label: "누적 km", data: values, backgroundColor: colors.map(c=>c+"bb"), borderColor: colors, borderWidth: 1, borderRadius: 4 }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: c => ` ${c.raw.toFixed(2)}km (잔여 ${Math.max(0,target-c.raw).toFixed(2)}km)` },
+          titleFont: { size: 14 }, bodyFont: { size: 13 }
+        },
+        annotation: {
+          annotations: {
+            tl: {
+              type: "line", xMin: target, xMax: target,
+              borderColor: "#ef4444", borderWidth: 1.5, borderDash: [4,3],
+              label: { display: true, content: `목표 ${target}km`, position: "start", backgroundColor: "#ef4444", color: "#fff", font: { size: 11 }, padding: { x:5, y:2 }, yAdjust: -14 }
+            }
+          }
+        }
+      },
+      scales: {
+        x: { beginAtZero: true, grid: { color: "#e2e0db" }, ticks: { font: { size: 11 }, color: "#6b6966" } },
+        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: "#1a1917" } }
+      }
+    },
+    plugins: [Chart.registry.getPlugin("annotation")]
+  });
+}
+
+// ── Render: records ──
+function renderRecords() {
+  const rows = activeFilter ? allRecords.filter(r => r.name === activeFilter) : allRecords;
+  const sorted = [...rows].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const container = document.getElementById("recordsList");
+  if (!sorted.length) {
+    container.innerHTML = `<div class="empty-msg">기록이 없어요.</div>`;
+    return;
+  }
+  container.innerHTML = sorted.map(r => `
+    <div class="record-item">
+      <div class="record-left">
+        <span class="record-name">${r.name}</span>
+        <span class="record-ts">${fmtDate(r.timestamp)}</span>
+      </div>
+      <span class="record-km">${r.score.toFixed(2)}km</span>
+    </div>`).join("");
+}
+
+// ── Refresh all ──
+async function refresh() {
+  const snap = await col.get();
+  allRecords = snap.docs.map(d => d.data()).filter(r => r.score && r.score !== 0);
+  const target = getTargetDistance();
+  const dataMap = buildDataMap();
+  renderSummary(dataMap, target);
+  renderMemberList(dataMap, target);
+  renderChart(dataMap, target);
+  renderRecords();
+}
+
+// ── Add record ──
+window.addRecord = async function() {
+  const score = parseFloat(document.getElementById("scoreInput").value);
+  if (!selectedName || isNaN(score) || score <= 0) {
+    showToast("이름과 거리를 확인해주세요.");
+    return;
+  }
+  const btn = document.getElementById("addBtn");
+  btn.disabled = true; btn.textContent = "저장 중...";
+  try {
+    await col.add({ name: selectedName, score, timestamp: new Date().toISOString() });
+    document.getElementById("scoreInput").value = "";
+    showToast(`${selectedName} ${score}km 추가됐어요 👏`);
+    await refresh();
+  } catch(e) {
+    showToast("저장 실패. 다시 시도해주세요.");
+  }
+  btn.disabled = false; btn.textContent = "기록 추가";
+};
+
+// ── Event / D-Day ──
 function renderEvent(name, dateStr) {
   const diff = calcDday(dateStr);
   const chip = document.getElementById("ddayChip");
-  const banner = document.getElementById("eventBanner");
-
-  if (diff > 0) {
-    chip.textContent = `D-${diff}`;
-    chip.className = "dday-chip";
-  } else if (diff === 0) {
-    chip.textContent = "D-Day";
-    chip.className = "dday-chip today";
-  } else {
-    chip.textContent = `D+${Math.abs(diff)}`;
-    chip.className = "dday-chip past";
-  }
-
+  if (diff > 0)      { chip.textContent = `D-${diff}`; chip.className = "dday-num"; }
+  else if (diff===0) { chip.textContent = "D-Day";    chip.className = "dday-num today"; }
+  else               { chip.textContent = `D+${Math.abs(diff)}`; chip.className = "dday-num past"; }
   document.getElementById("eventName").textContent = name;
   const d = new Date(dateStr + "T00:00:00");
-  document.getElementById("eventDateLabel").textContent =
-    `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
-
-  banner.classList.remove("hidden");
-  document.getElementById("addEventBtn").textContent = "";
+  document.getElementById("eventDateLabel").textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+  document.getElementById("eventBanner").classList.remove("hidden");
   document.getElementById("addEventBtn").style.display = "none";
 }
 
 async function loadEvent() {
   try {
-    const snap = await eventCol.orderBy("createdAt", "desc").limit(1).get();
+    const snap = await eventCol.orderBy("createdAt","desc").limit(1).get();
     if (!snap.empty) {
       const doc = snap.docs[0];
       currentEventId = doc.id;
       const { name, date } = doc.data();
       renderEvent(name, date);
     }
-  } catch(e) {
-    // events collection may not exist yet — that's fine
-  }
+  } catch(e) {}
 }
 
 window.toggleEventForm = function() {
   const form = document.getElementById("eventForm");
-  const isOpen = form.classList.contains("open");
-  if (isOpen) {
-    form.classList.remove("open");
-  } else {
-    form.classList.add("open");
-    if (currentEventId) {
-      document.getElementById("eventNameInput").value = document.getElementById("eventName").textContent;
-      const label = document.getElementById("eventDateLabel").textContent;
-      // pre-fill date input from banner label
-      const d = new Date(document.getElementById("eventDateLabel").textContent
-        .replace("년 ", "-").replace("월 ", "-").replace("일", "").trim());
-      const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-      document.getElementById("eventDateInput").value = iso;
-    }
+  const open = form.classList.toggle("open");
+  if (open && currentEventId) {
+    document.getElementById("eventNameInput").value = document.getElementById("eventName").textContent;
+    const d = new Date(document.getElementById("eventDateLabel").textContent
+      .replace("년 ","-").replace("월 ","-").replace("일","").trim());
+    document.getElementById("eventDateInput").value =
+      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   }
 };
 
 window.saveEvent = async function() {
   const name = document.getElementById("eventNameInput").value.trim();
   const date = document.getElementById("eventDateInput").value;
-  if (!name || !date) { showToast("이름과 날짜를 모두 입력해주세요."); return; }
-
+  if (!name || !date) { showToast("이름과 날짜를 입력해주세요."); return; }
   const btn = document.getElementById("saveEventBtn");
   btn.disabled = true; btn.textContent = "저장 중...";
-
   try {
-    if (currentEventId) {
-      await eventCol.doc(currentEventId).set({ name, date, createdAt: new Date().toISOString() });
-    } else {
-      const ref = await eventCol.add({ name, date, createdAt: new Date().toISOString() });
-      currentEventId = ref.id;
-    }
+    const payload = { name, date, createdAt: new Date().toISOString() };
+    if (currentEventId) await eventCol.doc(currentEventId).set(payload);
+    else { const ref = await eventCol.add(payload); currentEventId = ref.id; }
     renderEvent(name, date);
     document.getElementById("eventForm").classList.remove("open");
     document.getElementById("eventNameInput").value = "";
     document.getElementById("eventDateInput").value = "";
     showToast(`${name} 등록됐어요 🏁`);
-  } catch(e) {
-    showToast("저장 실패. 다시 시도해주세요.");
-  }
+  } catch(e) { showToast("저장 실패."); }
   btn.disabled = false; btn.textContent = "저장";
 };
 
@@ -830,205 +809,9 @@ window.deleteEvent = async function() {
     document.getElementById("eventBanner").classList.add("hidden");
     document.getElementById("eventForm").classList.remove("open");
     document.getElementById("addEventBtn").style.display = "";
-    document.getElementById("addEventBtn").textContent = "+ 대회 등록";
     showToast("대회 일정이 삭제됐어요.");
-  } catch(e) {
-    showToast("삭제 실패. 다시 시도해주세요.");
-  }
+  } catch(e) { showToast("삭제 실패."); }
 };
-
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2200);
-}
-
-function fmtDate(iso) {
-  const d = new Date(iso);
-  const p = n => String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
-}
-
-function buildDataMap() {
-  const map = {};
-  MEMBERS.forEach(n => map[n] = 0);
-  allRecords.forEach(r => { if (map[r.name] !== undefined) map[r.name] += r.score; });
-  return map;
-}
-
-function renderSummary(dataMap, target) {
-  const vals = Object.values(dataMap);
-  const total = vals.reduce((a,b) => a+b, 0);
-  const ahead = vals.filter(v => v >= target).length;
-  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
-
-  document.getElementById("summaryTotal").textContent = total.toFixed(1);
-  document.getElementById("summaryAhead").textContent = ahead;
-  document.getElementById("summaryLeader").textContent = sorted[0][0];
-  document.getElementById("summaryLeaderKm").textContent = sorted[0][1].toFixed(2) + "km";
-  document.getElementById("targetBadge").textContent = `오늘 목표 ${target}km`;
-}
-
-function renderMemberList(dataMap, target) {
-  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
-  const container = document.getElementById("memberList");
-  container.innerHTML = sorted.map(([name, km], i) => {
-    const pct = Math.min(100, target > 0 ? (km / target) * 100 : 0);
-    const color = COLORS[MEMBERS.indexOf(name)] || "#2563eb";
-    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
-    const remain = Math.max(0, target - km);
-    return `
-      <div class="member-row">
-        <div class="member-info">
-          <span class="member-name">${medal ? medal + " " : ""}${name}</span>
-          <span class="member-km">${km.toFixed(2)}km (-${remain.toFixed(2)})</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${pct}%; background:${color}"></div>
-        </div>
-      </div>`;
-  }).join("");
-}
-
-function renderChart(dataMap, target) {
-  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
-  const labels = sorted.map(([n],i) => {
-    const m = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
-    return m ? `${m} ${n}` : n;
-  });
-  const values = sorted.map(([,v]) => v);
-  const colors = sorted.map(([n]) => COLORS[MEMBERS.indexOf(n)] || "#2563eb");
-
-  const ctx = document.getElementById("myChart").getContext("2d");
-  if (chartInstance) chartInstance.destroy();
-
-  chartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "누적 km",
-        data: values,
-        backgroundColor: colors.map(c => c + "cc"),
-        borderColor: colors,
-        borderWidth: 1,
-        borderRadius: 4,
-      }]
-    },
-    options: {
-      indexAxis: "y",
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const v = ctx.raw;
-              const rem = Math.max(0, target - v);
-              return ` ${v.toFixed(2)}km  (목표까지 -${rem.toFixed(2)}km)`;
-            }
-          },
-          titleFont: { size: 13 },
-          bodyFont: { size: 13 }
-        },
-        annotation: {
-          annotations: {
-            targetLine: {
-              type: "line",
-              xMin: target,
-              xMax: target,
-              borderColor: "#ef4444",
-              borderWidth: 1.5,
-              borderDash: [4, 3],
-              label: {
-                display: true,
-                content: `목표 ${target}km`,
-                position: "start",
-                backgroundColor: "#ef4444",
-                color: "#fff",
-                font: { size: 11, weight: "500" },
-                padding: { x: 6, y: 3 },
-                yAdjust: -14
-              }
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          beginAtZero: true,
-          grid: { color: "#e2e0db" },
-          ticks: { font: { size: 11 }, color: "#6b6966" }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { font: { size: 12 }, color: "#1a1917" }
-        }
-      }
-    },
-    plugins: [Chart.registry.getPlugin("annotation")]
-  });
-}
-
-function renderTable() {
-  const filter = document.getElementById("filterSelect").value;
-  const rows = filter ? allRecords.filter(r => r.name === filter) : allRecords;
-  const sorted = [...rows].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const tbody = document.getElementById("recordsTbody");
-
-  if (!sorted.length) {
-    tbody.innerHTML = `<tr><td colspan="3" class="loading">기록이 없습니다.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = sorted.map(r => `
-    <tr>
-      <td>${r.name}</td>
-      <td><span class="ts">${fmtDate(r.timestamp)}</span></td>
-      <td>${r.score.toFixed(2)}km</td>
-    </tr>`).join("");
-}
-
-async function refresh() {
-  const snapshot = await col.get();
-  allRecords = snapshot.docs
-    .map(d => d.data())
-    .filter(r => r.score && r.score !== 0);
-
-  const target = getTargetDistance();
-  const dataMap = buildDataMap();
-
-  renderSummary(dataMap, target);
-  renderMemberList(dataMap, target);
-  renderChart(dataMap, target);
-  renderTable();
-}
-
-window.addRecord = async function() {
-  const name = document.getElementById("nameSelect").value;
-  const score = parseFloat(document.getElementById("scoreInput").value);
-  if (!name || isNaN(score) || score <= 0) {
-    showToast("거리를 올바르게 입력해주세요.");
-    return;
-  }
-  const btn = document.getElementById("addBtn");
-  btn.disabled = true;
-  btn.textContent = "저장 중...";
-  try {
-    await col.add({ name, score, timestamp: new Date().toISOString() });
-    document.getElementById("scoreInput").value = "";
-    showToast(`${name} ${score}km 추가됐어요 👏`);
-    await refresh();
-  } catch(e) {
-    showToast("저장 실패. 다시 시도해주세요.");
-  }
-  btn.disabled = false;
-  btn.textContent = "추가";
-};
-
-window.renderTable = renderTable;
 
 window.onload = async function() {
   await loadEvent();
