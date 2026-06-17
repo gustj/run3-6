@@ -305,6 +305,28 @@ body {
   padding: 0 0.5rem 0 0;
 }
 
+/* ── Pace input ── */
+.pace-row { display: flex; gap: 0.5rem; align-items: center; }
+.pace-input {
+  width: 68px;
+  padding: 0.85rem 0.4rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1.3rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+  text-align: center;
+}
+.pace-input:focus { border-color: var(--accent); background: #fff; }
+.pace-sep { font-size: 1.4rem; font-weight: 700; color: var(--muted); padding: 0 1px; }
+.pace-unit { font-size: 0.85rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.pace-optional { font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
+.record-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.record-pace { font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
 /* ── Records (tab 3) ── */
 .filter-row {
   display: flex;
@@ -441,7 +463,7 @@ body {
 
   <!-- Tab: 현황 -->
   <div class="tab-panel active" id="tab-home">
-    <div class="summary-row">
+    <div class="summary-row" style="grid-template-columns: repeat(3,1fr);">
       <div class="scard">
         <div class="scard-label">팀 누적</div>
         <div class="scard-value" id="summaryTotal">—</div>
@@ -459,13 +481,8 @@ body {
       </div>
     </div>
 
-    <div class="member-list" id="memberList">
-      <div class="empty-msg">불러오는 중...</div>
-    </div>
-
     <div class="chart-card">
-      <div class="section-title">랭킹 차트</div>
-      <div class="chart-wrap">
+      <div class="chart-wrap" style="height:320px;">
         <canvas id="myChart"></canvas>
       </div>
     </div>
@@ -493,6 +510,16 @@ body {
           <input class="km-input" type="number" id="scoreInput" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
           <span class="km-unit">km</span>
         </div>
+      </div>
+      <div>
+        <label class="form-label">평균 페이스 <span style="font-weight:400;text-transform:none">(선택)</span></label>
+        <div class="pace-row">
+          <input class="pace-input" type="number" id="paceMin" placeholder="5" min="0" max="59" inputmode="numeric">
+          <span class="pace-sep">:</span>
+          <input class="pace-input" type="number" id="paceSec" placeholder="30" min="0" max="59" inputmode="numeric">
+          <span class="pace-unit">분:초 / km</span>
+        </div>
+        <div class="pace-optional">입력하지 않으면 페이스 없이 저장돼요.</div>
       </div>
       <button class="btn-primary" onclick="addRecord()" id="addBtn">기록 추가</button>
     </div>
@@ -613,49 +640,74 @@ function calcDday(dateStr) {
 
 function buildDataMap() {
   const map = {};
-  MEMBERS.forEach(n => map[n] = 0);
-  allRecords.forEach(r => { if (map[r.name] !== undefined) map[r.name] += r.score; });
+  MEMBERS.forEach(n => map[n] = { km: 0, paceSum: 0, paceCount: 0 });
+  allRecords.forEach(r => {
+    if (map[r.name] !== undefined) {
+      map[r.name].km += r.score;
+      if (r.paceSeconds) {
+        map[r.name].paceSum += r.paceSeconds;
+        map[r.name].paceCount += 1;
+      }
+    }
+  });
   return map;
+}
+
+function fmtPace(seconds) {
+  if (!seconds || seconds <= 0) return null;
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return `${m}′${String(s).padStart(2,"0")}″`;
+}
+
+function avgPaceSeconds(paceSum, paceCount) {
+  return paceCount > 0 ? paceSum / paceCount : null;
 }
 
 // ── Render: summary ──
 function renderSummary(dataMap, target) {
-  const vals = Object.values(dataMap);
-  const total = vals.reduce((a,b) => a+b, 0);
-  const ahead = vals.filter(v => v >= target).length;
-  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+  const entries = Object.values(dataMap);
+  const total = entries.reduce((a,b) => a + b.km, 0);
+  const ahead = entries.filter(v => v.km >= target).length;
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1].km - a[1].km);
   document.getElementById("summaryTotal").textContent = total.toFixed(1);
   document.getElementById("summaryAhead").textContent = ahead;
   document.getElementById("summaryLeader").textContent = sorted[0][0];
-  document.getElementById("summaryLeaderKm").textContent = sorted[0][1].toFixed(1) + "km";
+  document.getElementById("summaryLeaderKm").textContent = sorted[0][1].km.toFixed(1) + "km";
   document.getElementById("targetBadge").textContent = `목표 ${target}km`;
 }
 
 // ── Render: member list ──
 function renderMemberList(dataMap, target) {
-  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1].km - a[1].km);
   const medals = ["🥇","🥈","🥉"];
-  document.getElementById("memberList").innerHTML = sorted.map(([name, km], i) => {
+  document.getElementById("memberList").innerHTML = sorted.map(([name, data], i) => {
+    const { km, paceSum, paceCount } = data;
     const pct = Math.min(100, target > 0 ? (km / target) * 100 : 0);
     const color = COLORS[MEMBERS.indexOf(name)];
     const remain = Math.max(0, target - km);
     const medal = medals[i] || "";
+    const avgPace = avgPaceSeconds(paceSum, paceCount);
+    const paceStr = avgPace ? `· 평균 ${fmtPace(avgPace)}/km` : "";
     return `<div class="member-row">
       <div class="member-info">
         <span class="member-name">${medal ? medal+" " : ""}${name}</span>
-        <span class="member-stat">${km.toFixed(2)}km · 잔여 ${remain.toFixed(2)}km</span>
+        <span class="member-stat">${km.toFixed(2)}km · 잔여 ${remain.toFixed(2)}km ${paceStr}</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
     </div>`;
   }).join("");
 }
 
-// ── Render: chart ──
+// ── Render: chart (unified — replaces member list) ──
 function renderChart(dataMap, target) {
-  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
-  const labels = sorted.map(([n],i) => i < 3 ? ["🥇","🥈","🥉"][i]+" "+n : n);
-  const values = sorted.map(([,v]) => v);
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1].km - a[1].km);
+  const medals = ["🥇","🥈","🥉"];
+  const labels = sorted.map(([n],i) => medals[i] ? medals[i]+" "+n : n);
+  const values = sorted.map(([,d]) => d.km);
   const colors = sorted.map(([n]) => COLORS[MEMBERS.indexOf(n)]);
+  const paces  = sorted.map(([,d]) => avgPaceSeconds(d.paceSum, d.paceCount));
+
   const ctx = document.getElementById("myChart").getContext("2d");
   if (chartInstance) chartInstance.destroy();
   chartInstance = new Chart(ctx, {
@@ -671,7 +723,15 @@ function renderChart(dataMap, target) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          callbacks: { label: c => ` ${c.raw.toFixed(2)}km (잔여 ${Math.max(0,target-c.raw).toFixed(2)}km)` },
+          callbacks: {
+            label: c => {
+              const km = c.raw;
+              const remain = Math.max(0, target - km);
+              const pace = paces[c.dataIndex];
+              const paceStr = pace ? `  · 평균 ${fmtPace(pace)}/km` : "";
+              return ` ${km.toFixed(2)}km  (잔여 ${remain.toFixed(2)}km)${paceStr}`;
+            }
+          },
           titleFont: { size: 14 }, bodyFont: { size: 13 }
         },
         annotation: {
@@ -686,7 +746,7 @@ function renderChart(dataMap, target) {
       },
       scales: {
         x: { beginAtZero: true, grid: { color: "#e2e0db" }, ticks: { font: { size: 11 }, color: "#6b6966" } },
-        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: "#1a1917" } }
+        y: { grid: { display: false }, ticks: { font: { size: 13 }, color: "#1a1917" } }
       }
     },
     plugins: [Chart.registry.getPlugin("annotation")]
@@ -702,14 +762,19 @@ function renderRecords() {
     container.innerHTML = `<div class="empty-msg">기록이 없어요.</div>`;
     return;
   }
-  container.innerHTML = sorted.map(r => `
-    <div class="record-item">
+  container.innerHTML = sorted.map(r => {
+    const pace = r.paceSeconds ? fmtPace(r.paceSeconds) + "/km" : null;
+    return `<div class="record-item">
       <div class="record-left">
         <span class="record-name">${r.name}</span>
         <span class="record-ts">${fmtDate(r.timestamp)}</span>
       </div>
-      <span class="record-km">${r.score.toFixed(2)}km</span>
-    </div>`).join("");
+      <div class="record-right">
+        <span class="record-km">${r.score.toFixed(2)}km</span>
+        ${pace ? `<span class="record-pace">${pace}</span>` : ""}
+      </div>
+    </div>`;
+  }).join("");
 }
 
 // ── Refresh all ──
@@ -719,7 +784,6 @@ async function refresh() {
   const target = getTargetDistance();
   const dataMap = buildDataMap();
   renderSummary(dataMap, target);
-  renderMemberList(dataMap, target);
   renderChart(dataMap, target);
   renderRecords();
 }
@@ -731,12 +795,30 @@ window.addRecord = async function() {
     showToast("이름과 거리를 확인해주세요.");
     return;
   }
+  const paceMinVal = document.getElementById("paceMin").value;
+  const paceSecVal = document.getElementById("paceSec").value;
+  let paceSeconds = null;
+  if (paceMinVal !== "" || paceSecVal !== "") {
+    const m = parseInt(paceMinVal) || 0;
+    const s = parseInt(paceSecVal) || 0;
+    if (m >= 0 && s >= 0 && s < 60 && (m + s) > 0) {
+      paceSeconds = m * 60 + s;
+    } else {
+      showToast("페이스 형식을 확인해주세요. (예: 5분 30초)");
+      return;
+    }
+  }
   const btn = document.getElementById("addBtn");
   btn.disabled = true; btn.textContent = "저장 중...";
   try {
-    await col.add({ name: selectedName, score, timestamp: new Date().toISOString() });
+    const payload = { name: selectedName, score, timestamp: new Date().toISOString() };
+    if (paceSeconds !== null) payload.paceSeconds = paceSeconds;
+    await col.add(payload);
     document.getElementById("scoreInput").value = "";
-    showToast(`${selectedName} ${score}km 추가됐어요 👏`);
+    document.getElementById("paceMin").value = "";
+    document.getElementById("paceSec").value = "";
+    const paceMsg = paceSeconds ? ` · ${fmtPace(paceSeconds)}/km` : "";
+    showToast(`${selectedName} ${score}km${paceMsg} 추가됐어요 👏`);
     await refresh();
   } catch(e) {
     showToast("저장 실패. 다시 시도해주세요.");
