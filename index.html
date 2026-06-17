@@ -1150,7 +1150,7 @@ function showToast(msg) {
 function fmtDate(iso) {
   const d = new Date(iso);
   const p = n => String(n).padStart(2,"0");
-  return `${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  return `${p(d.getMonth()+1)}/${p(d.getDate())}`;
 }
 
 function getTargetDistance() {
@@ -1281,7 +1281,7 @@ function renderChart(dataMap, target) {
 
         // measure widths for inside/outside decision
         c.font = `600 ${fontSize}px -apple-system, sans-serif`;
-        const kmW = c.measureText(km.toFixed(2) + "km").width;
+        const kmW = c.measureText(km.toFixed(2) + "km ").width;
         c.font = `400 ${smallSize}px -apple-system, sans-serif`;
         const remStr = remain > 0 ? ` (-${remain.toFixed(2)}km)` : " ✓";
         const remW = c.measureText(remStr).width;
