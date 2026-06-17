@@ -230,7 +230,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 0.75rem 0.25rem 0.75rem 0.25rem;
 }
 .section-title {
   font-size: 0.72rem;
@@ -626,46 +626,46 @@ input[type="date"].form-date:focus { border-color: var(--accent); background: #f
   <h1 id="appTitle">🏃‍♀️ 3-6 러닝챌린지</h1>
   <div class="header-right">
     <div class="target-badge" id="targetBadge">목표 —km</div>
-    <button class="btn-text" onclick="toggleEventForm()" id="addEventBtn">+ 대회</button>
     <button class="admin-lock" id="adminLockBtn" onclick="onAdminLockClick()" title="관리자">🔒</button>
   </div>
 </div>
 
 <div class="content">
 
-  <!-- D-Day banner -->
-  <div class="dday-banner hidden" id="eventBanner">
-    <div class="dday-num" id="ddayChip">D-?</div>
-    <div class="dday-info">
-      <div class="dday-name" id="eventName">—</div>
-      <div class="dday-date" id="eventDateLabel">—</div>
-    </div>
-    <div class="dday-actions">
-      <button class="btn-icon" onclick="toggleEventForm()" title="수정">✏️</button>
-      <button class="btn-icon" onclick="deleteEvent()" title="삭제">🗑</button>
-    </div>
-  </div>
-
-  <!-- Event form -->
-  <div class="event-form" id="eventForm">
-    <div>
-      <label class="form-label" for="eventNameInput">대회 이름</label>
-      <input class="form-input" type="text" id="eventNameInput" placeholder="예: 서울 마라톤">
-    </div>
-    <div>
-      <label class="form-label" for="eventDateInput">날짜</label>
-      <input class="form-input" type="date" id="eventDateInput">
-    </div>
-    <button class="btn-primary" onclick="saveEvent()" id="saveEventBtn">저장</button>
-  </div>
-
   <!-- Tab: 현황 -->
   <div class="tab-panel active" id="tab-home">
+
+    <!-- D-Day banner (현황 탭에서만 표시) -->
+    <div class="dday-banner hidden" id="eventBanner">
+      <div class="dday-num" id="ddayChip">D-?</div>
+      <div class="dday-info">
+        <div class="dday-name" id="eventName">—</div>
+        <div class="dday-date" id="eventDateLabel">—</div>
+      </div>
+      <div class="dday-actions">
+        <button class="btn-icon" onclick="toggleEventForm()" title="수정" id="editEventBtn" style="display:none">✏️</button>
+        <button class="btn-icon" onclick="deleteEvent()" title="삭제" id="deleteEventBtn" style="display:none">🗑</button>
+      </div>
+    </div>
+
+    <!-- Event form (admin only) -->
+    <div class="event-form" id="eventForm">
+      <div>
+        <label class="form-label" for="eventNameInput">대회 이름</label>
+        <input class="form-input" type="text" id="eventNameInput" placeholder="예: 서울 마라톤">
+      </div>
+      <div>
+        <label class="form-label" for="eventDateInput">날짜</label>
+        <input class="form-input" type="date" id="eventDateInput">
+      </div>
+      <button class="btn-primary" onclick="saveEvent()" id="saveEventBtn">저장</button>
+    </div>
+
     <div class="summary-row" style="grid-template-columns: repeat(3,1fr);">
       <div class="scard">
         <div class="scard-label">팀 누적</div>
         <div class="scard-value" id="summaryTotal">—</div>
-        <div class="scard-sub">km</div>
+        <div class="scard-sub" id="summaryTotalSub">km</div>
       </div>
       <div class="scard">
         <div class="scard-label">달성</div>
@@ -680,7 +680,7 @@ input[type="date"].form-date:focus { border-color: var(--accent); background: #f
     </div>
 
     <div class="chart-card">
-      <div class="chart-wrap" style="height:420px;">
+      <div class="chart-wrap" style="height:378px;">
         <canvas id="myChart"></canvas>
       </div>
     </div>
@@ -748,6 +748,23 @@ input[type="date"].form-date:focus { border-color: var(--accent); background: #f
   <!-- Tab: 어드민 (hidden until logged in) -->
   <div class="tab-panel" id="tab-admin">
     <div class="admin-section">
+      <div class="admin-section-title">대회 등록</div>
+      <div class="field">
+        <label class="form-label" for="adminEventNameInput">대회 이름</label>
+        <input class="form-input" type="text" id="adminEventNameInput" placeholder="예: 서울 마라톤">
+      </div>
+      <div class="field">
+        <label class="form-label" for="adminEventDateInput">날짜</label>
+        <input class="form-input" type="date" id="adminEventDateInput">
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn-primary" onclick="adminSaveEvent()" id="adminSaveEventBtn" style="flex:1">저장</button>
+        <button class="btn-danger" onclick="adminDeleteEvent()" id="adminDeleteEventBtn" style="display:none">삭제</button>
+      </div>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:-0.3rem" id="adminEventStatus">등록된 대회 없음</p>
+    </div>
+
+    <div class="admin-section">
       <div class="admin-section-title">타이틀 수정</div>
       <div class="field">
         <label class="form-label" for="adminTitleInput">사이트 타이틀</label>
@@ -757,13 +774,22 @@ input[type="date"].form-date:focus { border-color: var(--accent); background: #f
     </div>
 
     <div class="admin-section">
-      <div class="admin-section-title">목표 거리 수정</div>
+      <div class="admin-section-title">챌린지 설정</div>
       <div class="field">
-        <label class="form-label" for="adminGoalInput">총 목표 km</label>
-        <input class="form-input" type="number" id="adminGoalInput" placeholder="30" min="1" inputmode="numeric">
+        <label class="form-label" for="adminStartDate">시작 날짜</label>
+        <input class="form-input" type="date" id="adminStartDate">
       </div>
-      <p style="font-size:0.75rem;color:var(--muted);margin-top:-0.3rem">현재 목표: <span id="adminCurrentGoal">—</span>km · 입력하면 날짜 기반 자동 계산 대신 고정 목표로 전환돼요.</p>
-      <button class="btn-primary" onclick="adminSaveGoal()">저장</button>
+      <div class="field">
+        <label class="form-label" for="adminEndDate">목표 날짜</label>
+        <input class="form-input" type="date" id="adminEndDate">
+      </div>
+      <div class="field">
+        <label class="form-label" for="adminTotalKm">총 목표 거리 (km)</label>
+        <input class="form-input" type="number" id="adminTotalKm" placeholder="30" min="1" inputmode="numeric">
+      </div>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:-0.3rem">오늘의 목표선 = 총 목표 거리 × (오늘까지 경과일 / 전체 기간)</p>
+      <p style="font-size:0.75rem;color:var(--accent-text);margin-top:2px">현재 오늘 목표: <span id="adminCurrentGoal">—</span>km</p>
+      <button class="btn-primary" onclick="adminSaveChallengeConfig()">저장</button>
     </div>
 
     <button class="logout-btn" onclick="adminLogout()">🔒 관리자 로그아웃</button>
@@ -850,7 +876,7 @@ let currentEventId = null;
 let activeFilter = "";
 let selectedName = "현서";
 let isAdmin = false;
-let customGoal = null; // null = auto (date-based), number = fixed
+let challengeConfig = { startDate: "2026-05-06", endDate: null, totalKm: 30 };
 
 // ── Admin auth ──
 window.onAdminLockClick = function() {
@@ -870,8 +896,20 @@ window.adminLogin = function() {
     document.getElementById("adminLockBtn").classList.add("active");
     // pre-fill admin fields
     document.getElementById("adminTitleInput").value = document.getElementById("appTitle").textContent;
-    document.getElementById("adminGoalInput").value = customGoal ?? "";
+    document.getElementById("adminStartDate").value = challengeConfig.startDate || "";
+    document.getElementById("adminEndDate").value   = challengeConfig.endDate || "";
+    document.getElementById("adminTotalKm").value   = challengeConfig.totalKm || "";
     document.getElementById("adminCurrentGoal").textContent = getTargetDistance();
+    // show edit/delete on banner if event exists
+    if (currentEventId) {
+      document.getElementById("editEventBtn").style.display = "";
+      document.getElementById("deleteEventBtn").style.display = "";
+      syncAdminEventPanel(
+        document.getElementById("eventName").textContent,
+        document.getElementById("adminEventDateInput").value
+      );
+      document.getElementById("adminDeleteEventBtn").style.display = "";
+    }
     renderRecords();
     showToast("관리자 모드 활성화됐어요.");
   } else {
@@ -890,6 +928,10 @@ window.adminLogout = function() {
   document.getElementById("adminTabBtn").style.display = "none";
   document.getElementById("adminLockBtn").textContent = "🔒";
   document.getElementById("adminLockBtn").classList.remove("active");
+  // hide edit/delete buttons on banner
+  document.getElementById("editEventBtn").style.display = "none";
+  document.getElementById("deleteEventBtn").style.display = "none";
+  document.getElementById("eventForm").classList.remove("open");
   // switch away from admin tab if active
   const adminPanel = document.getElementById("tab-admin");
   if (adminPanel.classList.contains("active")) {
@@ -914,21 +956,26 @@ window.adminSaveTitle = async function() {
   } catch(e) { showToast("저장 실패."); }
 };
 
-// ── Admin: save custom goal to Firebase config ──
-window.adminSaveGoal = async function() {
-  const val = document.getElementById("adminGoalInput").value;
-  const goal = val === "" ? null : parseInt(val);
-  if (goal !== null && (isNaN(goal) || goal < 1)) { showToast("올바른 숫자를 입력해주세요."); return; }
+// ── Admin: save challenge config ──
+window.adminSaveChallengeConfig = async function() {
+  const startDate = document.getElementById("adminStartDate").value;
+  const endDate   = document.getElementById("adminEndDate").value;
+  const totalKm   = parseFloat(document.getElementById("adminTotalKm").value);
+  if (!startDate || !endDate || isNaN(totalKm) || totalKm < 1) {
+    showToast("시작일, 목표일, 목표 거리를 모두 입력해주세요."); return;
+  }
+  if (new Date(endDate) <= new Date(startDate)) {
+    showToast("목표 날짜는 시작 날짜보다 이후여야 해요."); return;
+  }
   try {
-    await configCol.doc("settings").set({ customGoal: goal }, { merge: true });
-    customGoal = goal;
+    challengeConfig = { startDate, endDate, totalKm };
+    await configCol.doc("settings").set({ challengeConfig }, { merge: true });
     const target = getTargetDistance();
     document.getElementById("adminCurrentGoal").textContent = target;
-    document.getElementById("targetBadge").textContent = `목표 ${target}km`;
     const dataMap = buildDataMap();
     renderSummary(dataMap, target);
     renderChart(dataMap, target);
-    showToast(goal ? `목표 ${goal}km로 설정됐어요.` : "날짜 기반 자동 목표로 복원됐어요.");
+    showToast(`저장됐어요. 오늘 목표 ${target}km`);
   } catch(e) { showToast("저장 실패."); }
 };
 
@@ -969,9 +1016,6 @@ window.openPersonModal = function(name) {
   const avgPace = paceRecs.length
     ? paceRecs.reduce((s,r) => s + r.paceSeconds, 0) / paceRecs.length
     : null;
-  const bestPace = paceRecs.length
-    ? Math.min(...paceRecs.map(r => r.paceSeconds))
-    : null;
 
   // header
   const colorIdx = MEMBERS.indexOf(name);
@@ -979,6 +1023,11 @@ window.openPersonModal = function(name) {
   document.getElementById("personName").textContent = name;
   document.getElementById("personSub").textContent =
     `총 ${totalKm.toFixed(2)}km · ${recs.length}회`;
+
+  const target = getTargetDistance();
+  const remainKm = parseFloat(Math.max(0, target - totalKm).toFixed(2));
+  const remainBg = remainKm > 0 ? "background:#fef2f2;border-color:#fca5a5;" : "";
+  const remainColor = remainKm > 0 ? "color:#b91c1c;" : "";
 
   // stats cards
   document.getElementById("personStats").innerHTML = `
@@ -992,10 +1041,10 @@ window.openPersonModal = function(name) {
       <div class="scard-value" style="font-size:1.1rem;padding-top:3px">${avgPace ? fmtPace(avgPace) : "—"}</div>
       <div class="scard-sub">/km</div>
     </div>
-    <div class="scard">
-      <div class="scard-label">최고 페이스</div>
-      <div class="scard-value" style="font-size:1.1rem;padding-top:3px">${bestPace ? fmtPace(bestPace) : "—"}</div>
-      <div class="scard-sub">/km</div>
+    <div class="scard" style="${remainBg}">
+      <div class="scard-label" style="${remainColor}">잔여</div>
+      <div class="scard-value" style="font-size:1.1rem;padding-top:3px;${remainColor}">${remainKm.toFixed(2)}</div>
+      <div class="scard-sub" style="${remainColor}">km</div>
     </div>`;
 
   // pace trend chart
@@ -1103,12 +1152,22 @@ function fmtDate(iso) {
 }
 
 function getTargetDistance() {
-  if (customGoal !== null) return customGoal;
-  const start = new Date("2026-05-06T00:00:00+09:00");
+  const { startDate, endDate, totalKm } = challengeConfig;
   const now = new Date();
   const kst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 9 * 3600000);
-  const days = Math.max(0, Math.floor((kst - start) / 86400000) + 1);
-  return Math.min(30, days);
+  const today = new Date(kst.getFullYear(), kst.getMonth(), kst.getDate());
+  const start = new Date(startDate + "T00:00:00");
+
+  if (endDate) {
+    const end = new Date(endDate + "T00:00:00");
+    const totalDays = Math.max(1, Math.round((end - start) / 86400000));
+    const elapsed = Math.max(0, Math.min(totalDays, Math.round((today - start) / 86400000) + 1));
+    return parseFloat(((totalKm * elapsed) / totalDays).toFixed(2));
+  } else {
+    // fallback: legacy 1km/day up to totalKm
+    const days = Math.max(0, Math.floor((today - start) / 86400000) + 1);
+    return Math.min(totalKm, days);
+  }
 }
 
 function calcDday(dateStr) {
@@ -1149,13 +1208,16 @@ function avgPaceSeconds(paceSum, paceCount) {
 function renderSummary(dataMap, target) {
   const entries = Object.values(dataMap);
   const total = entries.reduce((a,b) => a + b.km, 0);
+  const teamTotal = parseFloat(total.toFixed(1));
+  const teamRemain = parseFloat(Math.max(0, target * MEMBERS.length - teamTotal).toFixed(1));
   const ahead = entries.filter(v => v.km >= target).length;
   const sorted = Object.entries(dataMap).sort((a,b) => b[1].km - a[1].km);
-  document.getElementById("summaryTotal").textContent = total.toFixed(1);
+  document.getElementById("summaryTotal").textContent = teamTotal;
+  document.getElementById("summaryTotalSub").textContent = `잔여 ${teamRemain}km`;
   document.getElementById("summaryAhead").textContent = ahead;
   document.getElementById("summaryLeader").textContent = sorted[0][0];
   document.getElementById("summaryLeaderKm").textContent = sorted[0][1].km.toFixed(1) + "km";
-  document.getElementById("targetBadge").textContent = `목표 ${target}km`;
+  document.getElementById("targetBadge").textContent = `목표 ${challengeConfig.totalKm}km`;
 }
 
 // ── Render: member list ──
@@ -1192,44 +1254,70 @@ function renderChart(dataMap, target) {
   const ctx = document.getElementById("myChart").getContext("2d");
   if (chartInstance) chartInstance.destroy();
 
-  // Custom plugin: km text (+ pace) drawn directly on each bar
+  // Custom plugin: line1: "5.20km (-4.80km)"  line2: pace
   const labelPlugin = {
     id: "barLabels",
     afterDatasetsDraw(chart) {
       const { ctx: c, scales: { x, y } } = chart;
       chart.getDatasetMeta(0).data.forEach((bar, i) => {
         const km = achieved[i];
-        if (km <= 0) return;
         const pace = paces[i];
-        const xEnd = x.getPixelForValue(km);
+        const remain = Math.max(0, target - km);
+        const xEnd = x.getPixelForValue(Math.max(km, 0));
         const yMid = bar.y;
         const barH = bar.height;
-        const kmTxt = km.toFixed(2) + "km";
+        const fontSize = Math.min(12, barH * 0.42);
+        const smallSize = Math.min(10, barH * 0.34);
         const paceTxt = pace ? fmtPace(pace) + "/km" : null;
-        const fontSize = Math.min(13, barH * 0.48);
+        const lineH = paceTxt ? barH * 0.28 : 0;
+        const baseY = yMid - (paceTxt ? lineH / 2 : 0);
+
+        const xOrigin = x.getPixelForValue(0);
 
         c.save();
-        c.font = `600 ${fontSize}px -apple-system, sans-serif`;
         c.textBaseline = "middle";
-        const textW = c.measureText(kmTxt).width;
-        const xOrigin = x.getPixelForValue(0);
-        const inside = (xEnd - xOrigin) > textW + 16;
+
+        // measure widths for inside/outside decision
+        c.font = `600 ${fontSize}px -apple-system, sans-serif`;
+        const kmW = c.measureText(km.toFixed(2) + "km").width;
+        c.font = `400 ${smallSize}px -apple-system, sans-serif`;
+        const remStr = remain > 0 ? ` (-${remain.toFixed(2)}km)` : " ✓";
+        const remW = c.measureText(remStr).width;
+        const totalW = kmW + remW;
+
+        const inside = (xEnd - xOrigin) > totalW + 16;
 
         if (inside) {
+          const startX = xEnd - totalW - 8;
+          // km (bold)
+          c.font = `600 ${fontSize}px -apple-system, sans-serif`;
           c.fillStyle = "#fff";
-          c.fillText(kmTxt, xEnd - textW - 8, yMid - (paceTxt ? 5 : 0));
+          c.fillText(km.toFixed(2) + "km", startX, baseY);
+          // remain (normal)
+          c.font = `400 ${smallSize}px -apple-system, sans-serif`;
+          c.fillStyle = remain > 0 ? "rgba(255,180,180,0.95)" : "rgba(255,255,255,0.7)";
+          c.fillText(remStr, startX + kmW, baseY);
+          // pace
           if (paceTxt) {
-            c.font = `500 ${Math.min(10, barH * 0.36)}px -apple-system, sans-serif`;
-            c.fillStyle = "rgba(255,255,255,0.8)";
-            c.fillText(paceTxt, xEnd - c.measureText(paceTxt).width - 8, yMid + 6);
+            c.font = `400 ${smallSize}px -apple-system, sans-serif`;
+            c.fillStyle = "rgba(255,255,255,0.75)";
+            c.fillText(paceTxt, xEnd - c.measureText(paceTxt).width - 8, baseY + lineH);
           }
         } else {
+          const startX = xEnd + 6;
+          // km (bold)
+          c.font = `600 ${fontSize}px -apple-system, sans-serif`;
           c.fillStyle = "#1a1917";
-          c.fillText(kmTxt, xEnd + 6, yMid - (paceTxt ? 5 : 0));
+          c.fillText(km > 0 ? km.toFixed(2) + "km" : "0km", startX, baseY);
+          // remain (normal)
+          c.font = `400 ${smallSize}px -apple-system, sans-serif`;
+          c.fillStyle = remain > 0 ? "#b91c1c" : "#16a34a";
+          c.fillText(remStr, startX + (km > 0 ? kmW : c.measureText("0km").width), baseY);
+          // pace
           if (paceTxt) {
-            c.font = `500 ${Math.min(10, barH * 0.36)}px -apple-system, sans-serif`;
+            c.font = `400 ${smallSize}px -apple-system, sans-serif`;
             c.fillStyle = "#6b6966";
-            c.fillText(paceTxt, xEnd + 6, yMid + 6);
+            c.fillText(paceTxt, startX, baseY + lineH);
           }
         }
         c.restore();
@@ -1352,12 +1440,8 @@ async function loadConfig() {
     const doc = await configCol.doc("settings").get();
     if (doc.exists) {
       const data = doc.data();
-      if (data.title) {
-        document.getElementById("appTitle").textContent = data.title;
-      }
-      if (data.customGoal !== undefined) {
-        customGoal = data.customGoal;
-      }
+      if (data.title) document.getElementById("appTitle").textContent = data.title;
+      if (data.challengeConfig) challengeConfig = { ...challengeConfig, ...data.challengeConfig };
     }
   } catch(e) {}
 }
@@ -1413,13 +1497,28 @@ function renderEvent(name, dateStr) {
   const diff = calcDday(dateStr);
   const chip = document.getElementById("ddayChip");
   if (diff > 0)      { chip.textContent = `D-${diff}`; chip.className = "dday-num"; }
-  else if (diff===0) { chip.textContent = "D-Day";    chip.className = "dday-num today"; }
+  else if (diff===0) { chip.textContent = "D-Day";     chip.className = "dday-num today"; }
   else               { chip.textContent = `D+${Math.abs(diff)}`; chip.className = "dday-num past"; }
   document.getElementById("eventName").textContent = name;
   const d = new Date(dateStr + "T00:00:00");
   document.getElementById("eventDateLabel").textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
   document.getElementById("eventBanner").classList.remove("hidden");
-  document.getElementById("addEventBtn").style.display = "none";
+  // admin-only edit/delete buttons on banner
+  const show = isAdmin ? "" : "none";
+  document.getElementById("editEventBtn").style.display = show;
+  document.getElementById("deleteEventBtn").style.display = show;
+  // sync admin panel
+  syncAdminEventPanel(name, dateStr);
+}
+
+function syncAdminEventPanel(name, dateStr) {
+  if (!document.getElementById("adminEventNameInput")) return;
+  document.getElementById("adminEventNameInput").value = name || "";
+  document.getElementById("adminEventDateInput").value = dateStr || "";
+  document.getElementById("adminEventStatus").textContent = name ? `현재: ${name}` : "등록된 대회 없음";
+  if (document.getElementById("adminDeleteEventBtn")) {
+    document.getElementById("adminDeleteEventBtn").style.display = currentEventId ? "" : "none";
+  }
 }
 
 async function loadEvent() {
@@ -1434,47 +1533,40 @@ async function loadEvent() {
   } catch(e) {}
 }
 
-window.toggleEventForm = function() {
-  const form = document.getElementById("eventForm");
-  const open = form.classList.toggle("open");
-  if (open && currentEventId) {
-    document.getElementById("eventNameInput").value = document.getElementById("eventName").textContent;
-    const d = new Date(document.getElementById("eventDateLabel").textContent
-      .replace("년 ","-").replace("월 ","-").replace("일","").trim());
-    document.getElementById("eventDateInput").value =
-      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  }
-};
-
-window.saveEvent = async function() {
-  const name = document.getElementById("eventNameInput").value.trim();
-  const date = document.getElementById("eventDateInput").value;
+// admin: save event
+window.adminSaveEvent = async function() {
+  const name = document.getElementById("adminEventNameInput").value.trim();
+  const date = document.getElementById("adminEventDateInput").value;
   if (!name || !date) { showToast("이름과 날짜를 입력해주세요."); return; }
-  const btn = document.getElementById("saveEventBtn");
+  const btn = document.getElementById("adminSaveEventBtn");
   btn.disabled = true; btn.textContent = "저장 중...";
   try {
     const payload = { name, date, createdAt: new Date().toISOString() };
     if (currentEventId) await eventCol.doc(currentEventId).set(payload);
     else { const ref = await eventCol.add(payload); currentEventId = ref.id; }
     renderEvent(name, date);
-    document.getElementById("eventForm").classList.remove("open");
-    document.getElementById("eventNameInput").value = "";
-    document.getElementById("eventDateInput").value = "";
     showToast(`${name} 등록됐어요 🏁`);
   } catch(e) { showToast("저장 실패."); }
   btn.disabled = false; btn.textContent = "저장";
 };
 
-window.deleteEvent = async function() {
+// admin: delete event
+window.adminDeleteEvent = async function() {
   if (!currentEventId) return;
   try {
     await eventCol.doc(currentEventId).delete();
     currentEventId = null;
     document.getElementById("eventBanner").classList.add("hidden");
     document.getElementById("eventForm").classList.remove("open");
-    document.getElementById("addEventBtn").style.display = "";
+    syncAdminEventPanel("", "");
     showToast("대회 일정이 삭제됐어요.");
   } catch(e) { showToast("삭제 실패."); }
+};
+
+window.toggleEventForm = function() {
+  if (!isAdmin) return;
+  const form = document.getElementById("eventForm");
+  form.classList.toggle("open");
 };
 
 window.onload = async function() {
