@@ -280,13 +280,14 @@ body {
 .name-btn:active { opacity: 0.75; }
 
 /* km input row */
-.km-row { display: flex; gap: 0.5rem; align-items: stretch; }
+.km-row { display: flex; gap: 0.5rem; align-items: center; min-width: 0; }
 .km-input {
   flex: 1;
-  padding: 0.85rem 1rem;
+  min-width: 0;
+  padding: 0.75rem 0.5rem;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
   background: var(--bg);
   color: var(--text);
@@ -294,25 +295,26 @@ body {
   -webkit-appearance: none;
   text-align: center;
   letter-spacing: -0.02em;
+  width: 0;
 }
 .km-input:focus { border-color: var(--accent); background: #fff; }
 .km-unit {
-  display: flex;
-  align-items: center;
+  flex-shrink: 0;
   font-size: 1rem;
   font-weight: 600;
   color: var(--muted);
-  padding: 0 0.5rem 0 0;
 }
 
 /* ── Pace input ── */
-.pace-row { display: flex; gap: 0.5rem; align-items: center; }
+.pace-row { display: flex; gap: 0.4rem; align-items: center; min-width: 0; }
 .pace-input {
-  width: 68px;
-  padding: 0.85rem 0.4rem;
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  padding: 0.75rem 0.25rem;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
   background: var(--bg);
   color: var(--text);
@@ -709,16 +711,16 @@ input[type="date"].form-date:focus { border-color: var(--accent); background: #f
       <div>
         <label class="form-label">거리</label>
         <div class="km-row">
-          <input class="km-input" type="number" id="scoreInput" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+          <input class="km-input" type="tel" id="scoreInput" placeholder="0.00" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
           <span class="km-unit">km</span>
         </div>
       </div>
       <div>
         <label class="form-label">평균 페이스 <span style="font-weight:400;text-transform:none">(선택)</span></label>
         <div class="pace-row">
-          <input class="pace-input" type="number" id="paceMin" placeholder="5" min="0" max="59" inputmode="numeric">
+          <input class="pace-input" type="tel" id="paceMin" placeholder="5" inputmode="numeric" pattern="[0-9]*">
           <span class="pace-sep">:</span>
-          <input class="pace-input" type="number" id="paceSec" placeholder="30" min="0" max="59" inputmode="numeric">
+          <input class="pace-input" type="tel" id="paceSec" placeholder="30" inputmode="numeric" pattern="[0-9]*">
           <span class="pace-unit">분:초 / km</span>
         </div>
         <div class="pace-optional">입력하지 않으면 페이스 없이 저장돼요.</div>
@@ -1269,7 +1271,7 @@ function renderChart(dataMap, target) {
         const fontSize = Math.min(12, barH * 0.42);
         const smallSize = Math.min(10, barH * 0.34);
         const paceTxt = pace ? fmtPace(pace) + "/km" : null;
-        const lineH = paceTxt ? barH * 0.28 : 0;
+        const lineH = paceTxt ? barH * 0.42 : 0;
         const baseY = yMid - (paceTxt ? lineH / 2 : 0);
 
         const xOrigin = x.getPixelForValue(0);
