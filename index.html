@@ -397,6 +397,203 @@ body {
 .tab-btn.active { color: var(--accent); }
 .tab-icon { font-size: 1.3rem; line-height: 1; }
 
+/* ── Personal page modal ── */
+.person-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 150;
+  flex-direction: column;
+  overflow: hidden;
+}
+.person-modal.open { display: flex; }
+
+.person-header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.person-back {
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--accent);
+  -webkit-tap-highlight-color: transparent;
+}
+.person-header-info { flex: 1; min-width: 0; }
+.person-header-name { font-size: 1rem; font-weight: 700; }
+.person-header-sub { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+
+.person-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.person-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.pace-chart-wrap { position: relative; height: 200px; }
+
+/* ── date input in add form ── */
+input[type="date"].form-date {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+}
+input[type="date"].form-date:focus { border-color: var(--accent); background: #fff; }
+
+/* ── Toast multiline ── */
+.toast { text-align: center; line-height: 1.5; white-space: pre-line; }
+
+/* ── Admin modal overlay ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.25rem 1.25rem;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.modal h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.modal-hint { font-size: 0.78rem; color: var(--muted); margin-top: -0.4rem; }
+.modal-row { display: flex; gap: 0.5rem; }
+.modal-row .form-input { flex: 1; }
+.btn-cancel {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: none;
+  font-size: 0.95rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.btn-danger {
+  padding: 0.55rem 0.9rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-danger:active { opacity: 0.8; }
+
+/* ── Admin tab panel ── */
+.admin-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.admin-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.admin-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #92400e;
+  background: #fef3c7;
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.04em;
+}
+.logout-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: none;
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+/* delete btn on record rows */
+.record-delete {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.8rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.record-delete:active { opacity: 0.7; }
+
+/* ── Admin lock icon in header ── */
+.admin-lock {
+  font-size: 1rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.4;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-lock.active { opacity: 1; color: #d97706; }
+
 /* ── Toast ── */
 .toast {
   position: fixed;
@@ -426,10 +623,11 @@ body {
 <body>
 
 <div class="app-header">
-  <h1>🏃‍♀️ 3-6 러닝챌린지</h1>
+  <h1 id="appTitle">🏃‍♀️ 3-6 러닝챌린지</h1>
   <div class="header-right">
     <div class="target-badge" id="targetBadge">목표 —km</div>
     <button class="btn-text" onclick="toggleEventForm()" id="addEventBtn">+ 대회</button>
+    <button class="admin-lock" id="adminLockBtn" onclick="onAdminLockClick()" title="관리자">🔒</button>
   </div>
 </div>
 
@@ -482,7 +680,7 @@ body {
     </div>
 
     <div class="chart-card">
-      <div class="chart-wrap" style="height:320px;">
+      <div class="chart-wrap" style="height:420px;">
         <canvas id="myChart"></canvas>
       </div>
     </div>
@@ -503,6 +701,10 @@ body {
           <button class="name-btn" data-name="예선" onclick="selectName(this)">예선</button>
           <button class="name-btn" data-name="영채" onclick="selectName(this)">영채</button>
         </div>
+      </div>
+      <div>
+        <label class="form-label">날짜</label>
+        <input type="date" class="form-date" id="recordDate">
       </div>
       <div>
         <label class="form-label">거리</label>
@@ -543,9 +745,68 @@ body {
     </div>
   </div>
 
+  <!-- Tab: 어드민 (hidden until logged in) -->
+  <div class="tab-panel" id="tab-admin">
+    <div class="admin-section">
+      <div class="admin-section-title">타이틀 수정</div>
+      <div class="field">
+        <label class="form-label" for="adminTitleInput">사이트 타이틀</label>
+        <input class="form-input" type="text" id="adminTitleInput" placeholder="🏃‍♀️ 3-6 러닝챌린지">
+      </div>
+      <button class="btn-primary" onclick="adminSaveTitle()">저장</button>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">목표 거리 수정</div>
+      <div class="field">
+        <label class="form-label" for="adminGoalInput">총 목표 km</label>
+        <input class="form-input" type="number" id="adminGoalInput" placeholder="30" min="1" inputmode="numeric">
+      </div>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:-0.3rem">현재 목표: <span id="adminCurrentGoal">—</span>km · 입력하면 날짜 기반 자동 계산 대신 고정 목표로 전환돼요.</p>
+      <button class="btn-primary" onclick="adminSaveGoal()">저장</button>
+    </div>
+
+    <button class="logout-btn" onclick="adminLogout()">🔒 관리자 로그아웃</button>
+  </div>
+
 </div>
 
-<!-- Bottom tab bar -->
+<!-- Personal page modal -->
+<div class="person-modal" id="personModal">
+  <div class="person-header">
+    <button class="person-back" onclick="closePersonModal()">←</button>
+    <div class="person-header-info">
+      <div class="person-header-name" id="personName">—</div>
+      <div class="person-header-sub" id="personSub">—</div>
+    </div>
+  </div>
+  <div class="person-content">
+    <div class="person-stats" id="personStats"></div>
+    <div class="chart-card">
+      <div class="section-title">페이스 추이</div>
+      <div class="pace-chart-wrap">
+        <canvas id="paceChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="section-title">기록 내역</div>
+      <div class="records-list" id="personRecords"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin password modal -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <h3>관리자 로그인</h3>
+    <p class="modal-hint">비밀번호를 입력하세요.</p>
+    <input class="form-input" type="password" id="adminPwInput" placeholder="비밀번호" onkeydown="if(event.key==='Enter') adminLogin()">
+    <div class="modal-row">
+      <button class="btn-cancel" onclick="closeAdminModal()">취소</button>
+      <button class="btn-primary" style="flex:1" onclick="adminLogin()">로그인</button>
+    </div>
+  </div>
+</div>
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('home', this)">
     <span class="tab-icon">📊</span>현황
@@ -555,6 +816,9 @@ body {
   </button>
   <button class="tab-btn" onclick="switchTab('records', this)">
     <span class="tab-icon">📋</span>내역
+  </button>
+  <button class="tab-btn" id="adminTabBtn" style="display:none" onclick="switchTab('admin', this)">
+    <span class="tab-icon">⚙️</span>관리
   </button>
 </div>
 
@@ -577,14 +841,230 @@ const eventCol = db.collection("events");
 
 const MEMBERS = ["현서","설희","미정","채림","성은","희연","예선","영채"];
 const COLORS = ["#2563eb","#7c3aed","#db2777","#ea580c","#16a34a","#0891b2","#d97706","#64748b"];
+const ADMIN_PW = "admin";
+const configCol = db.collection("config");
 
 let chartInstance = null;
-let allRecords = [];
+let allRecords = []; // each: { ...data, _id: docId }
 let currentEventId = null;
 let activeFilter = "";
 let selectedName = "현서";
+let isAdmin = false;
+let customGoal = null; // null = auto (date-based), number = fixed
 
-// ── Tab switching ──
+// ── Admin auth ──
+window.onAdminLockClick = function() {
+  if (isAdmin) { adminLogout(); return; }
+  document.getElementById("adminModal").classList.add("open");
+  setTimeout(() => document.getElementById("adminPwInput").focus(), 100);
+};
+
+window.adminLogin = function() {
+  const pw = document.getElementById("adminPwInput").value;
+  if (pw === ADMIN_PW) {
+    isAdmin = true;
+    document.getElementById("adminPwInput").value = "";
+    document.getElementById("adminModal").classList.remove("open");
+    document.getElementById("adminTabBtn").style.display = "";
+    document.getElementById("adminLockBtn").textContent = "🔓";
+    document.getElementById("adminLockBtn").classList.add("active");
+    // pre-fill admin fields
+    document.getElementById("adminTitleInput").value = document.getElementById("appTitle").textContent;
+    document.getElementById("adminGoalInput").value = customGoal ?? "";
+    document.getElementById("adminCurrentGoal").textContent = getTargetDistance();
+    renderRecords();
+    showToast("관리자 모드 활성화됐어요.");
+  } else {
+    showToast("비밀번호가 틀렸어요.");
+    document.getElementById("adminPwInput").value = "";
+  }
+};
+
+window.closeAdminModal = function() {
+  document.getElementById("adminModal").classList.remove("open");
+  document.getElementById("adminPwInput").value = "";
+};
+
+window.adminLogout = function() {
+  isAdmin = false;
+  document.getElementById("adminTabBtn").style.display = "none";
+  document.getElementById("adminLockBtn").textContent = "🔒";
+  document.getElementById("adminLockBtn").classList.remove("active");
+  // switch away from admin tab if active
+  const adminPanel = document.getElementById("tab-admin");
+  if (adminPanel.classList.contains("active")) {
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-home").classList.add("active");
+    document.querySelector(".tab-btn").classList.add("active");
+  }
+  renderRecords();
+  showToast("로그아웃됐어요.");
+};
+
+// ── Admin: save title to Firebase config ──
+window.adminSaveTitle = async function() {
+  const title = document.getElementById("adminTitleInput").value.trim();
+  if (!title) { showToast("타이틀을 입력해주세요."); return; }
+  try {
+    await configCol.doc("settings").set({ title }, { merge: true });
+    document.getElementById("appTitle").textContent = title;
+    document.title = title.replace(/[\u{1F000}-\u{1FFFF}]/gu, "").trim() || title;
+    showToast("타이틀이 저장됐어요.");
+  } catch(e) { showToast("저장 실패."); }
+};
+
+// ── Admin: save custom goal to Firebase config ──
+window.adminSaveGoal = async function() {
+  const val = document.getElementById("adminGoalInput").value;
+  const goal = val === "" ? null : parseInt(val);
+  if (goal !== null && (isNaN(goal) || goal < 1)) { showToast("올바른 숫자를 입력해주세요."); return; }
+  try {
+    await configCol.doc("settings").set({ customGoal: goal }, { merge: true });
+    customGoal = goal;
+    const target = getTargetDistance();
+    document.getElementById("adminCurrentGoal").textContent = target;
+    document.getElementById("targetBadge").textContent = `목표 ${target}km`;
+    const dataMap = buildDataMap();
+    renderSummary(dataMap, target);
+    renderChart(dataMap, target);
+    showToast(goal ? `목표 ${goal}km로 설정됐어요.` : "날짜 기반 자동 목표로 복원됐어요.");
+  } catch(e) { showToast("저장 실패."); }
+};
+
+// ── Admin: delete record ──
+window.adminDeleteRecord = async function(docId, name, km) {
+  if (!isAdmin) return;
+  if (!confirm(`${name} ${km}km 기록을 삭제할까요?`)) return;
+  try {
+    await col.doc(docId).delete();
+    showToast("삭제됐어요.");
+    await refresh();
+  } catch(e) { showToast("삭제 실패."); }
+};
+
+// ── Date default ──
+function initDateInput() {
+  const now = new Date();
+  const kst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 9 * 3600000);
+  const y = kst.getFullYear();
+  const m = String(kst.getMonth()+1).padStart(2,"0");
+  const d = String(kst.getDate()).padStart(2,"0");
+  document.getElementById("recordDate").value = `${y}-${m}-${d}`;
+}
+
+// ── Personal page ──
+let paceChartInstance = null;
+
+window.openPersonModal = function(name) {
+  const modal = document.getElementById("personModal");
+  modal.classList.add("open");
+
+  const recs = allRecords
+    .filter(r => r.name === name)
+    .sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+  const totalKm = recs.reduce((s,r) => s + r.score, 0);
+  const paceRecs = recs.filter(r => r.paceSeconds);
+  const avgPace = paceRecs.length
+    ? paceRecs.reduce((s,r) => s + r.paceSeconds, 0) / paceRecs.length
+    : null;
+  const bestPace = paceRecs.length
+    ? Math.min(...paceRecs.map(r => r.paceSeconds))
+    : null;
+
+  // header
+  const colorIdx = MEMBERS.indexOf(name);
+  const color = COLORS[colorIdx] || "#2563eb";
+  document.getElementById("personName").textContent = name;
+  document.getElementById("personSub").textContent =
+    `총 ${totalKm.toFixed(2)}km · ${recs.length}회`;
+
+  // stats cards
+  document.getElementById("personStats").innerHTML = `
+    <div class="scard">
+      <div class="scard-label">누적</div>
+      <div class="scard-value">${totalKm.toFixed(1)}</div>
+      <div class="scard-sub">km</div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">평균 페이스</div>
+      <div class="scard-value" style="font-size:1.1rem;padding-top:3px">${avgPace ? fmtPace(avgPace) : "—"}</div>
+      <div class="scard-sub">/km</div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">최고 페이스</div>
+      <div class="scard-value" style="font-size:1.1rem;padding-top:3px">${bestPace ? fmtPace(bestPace) : "—"}</div>
+      <div class="scard-sub">/km</div>
+    </div>`;
+
+  // pace trend chart
+  const paceCtx = document.getElementById("paceChart").getContext("2d");
+  if (paceChartInstance) paceChartInstance.destroy();
+
+  if (paceRecs.length >= 2) {
+    paceChartInstance = new Chart(paceCtx, {
+      type: "line",
+      data: {
+        labels: paceRecs.map(r => fmtDate(r.timestamp)),
+        datasets: [{
+          data: paceRecs.map(r => r.paceSeconds),
+          borderColor: color,
+          backgroundColor: color + "22",
+          borderWidth: 2,
+          pointBackgroundColor: color,
+          pointRadius: 4,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+          callbacks: { label: c => " " + fmtPace(c.raw) + "/km" },
+          titleFont: { size: 12 }, bodyFont: { size: 12 }
+        }},
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, color: "#6b6966", maxRotation: 30 } },
+          y: {
+            reverse: true,
+            grid: { color: "#e2e0db" },
+            ticks: {
+              font: { size: 10 }, color: "#6b6966",
+              callback: v => fmtPace(v)
+            }
+          }
+        }
+      }
+    });
+  } else {
+    paceCtx.canvas.parentElement.innerHTML =
+      `<div class="pace-chart-wrap"><div class="empty-msg" style="padding-top:4rem">페이스 기록이 2개 이상 있어야<br>추이를 볼 수 있어요.</div></div>`;
+  }
+
+  // records list
+  const sorted = [...recs].reverse();
+  document.getElementById("personRecords").innerHTML = sorted.length
+    ? sorted.map(r => {
+        const pace = r.paceSeconds ? fmtPace(r.paceSeconds) + "/km" : null;
+        return `<div class="record-item">
+          <div class="record-left">
+            <span class="record-name">${fmtDate(r.timestamp)}</span>
+          </div>
+          <div class="record-right">
+            <span class="record-km">${r.score.toFixed(2)}km</span>
+            ${pace ? `<span class="record-pace">${pace}</span>` : ""}
+          </div>
+        </div>`;
+      }).join("")
+    : `<div class="empty-msg">기록이 없어요.</div>`;
+};
+
+window.closePersonModal = function() {
+  document.getElementById("personModal").classList.remove("open");
+  if (paceChartInstance) { paceChartInstance.destroy(); paceChartInstance = null; }
+};
 window.switchTab = function(tab, btn) {
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -623,6 +1103,7 @@ function fmtDate(iso) {
 }
 
 function getTargetDistance() {
+  if (customGoal !== null) return customGoal;
   const start = new Date("2026-05-06T00:00:00+09:00");
   const now = new Date();
   const kst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 9 * 3600000);
@@ -699,57 +1180,129 @@ function renderMemberList(dataMap, target) {
   }).join("");
 }
 
-// ── Render: chart (unified — replaces member list) ──
+// ── Render: chart (single bar + text labels + dashed target line) ──
 function renderChart(dataMap, target) {
   const sorted = Object.entries(dataMap).sort((a,b) => b[1].km - a[1].km);
-  const medals = ["🥇","🥈","🥉"];
-  const labels = sorted.map(([n],i) => medals[i] ? medals[i]+" "+n : n);
-  const values = sorted.map(([,d]) => d.km);
-  const colors = sorted.map(([n]) => COLORS[MEMBERS.indexOf(n)]);
-  const paces  = sorted.map(([,d]) => avgPaceSeconds(d.paceSum, d.paceCount));
+  const medals  = ["🥇","🥈","🥉"];
+  const labels   = sorted.map(([n],i) => medals[i] ? medals[i]+" "+n : n);
+  const achieved = sorted.map(([,d]) => parseFloat(d.km.toFixed(2)));
+  const colors   = sorted.map(([n]) => COLORS[MEMBERS.indexOf(n)]);
+  const paces    = sorted.map(([,d]) => avgPaceSeconds(d.paceSum, d.paceCount));
 
   const ctx = document.getElementById("myChart").getContext("2d");
   if (chartInstance) chartInstance.destroy();
+
+  // Custom plugin: km text (+ pace) drawn directly on each bar
+  const labelPlugin = {
+    id: "barLabels",
+    afterDatasetsDraw(chart) {
+      const { ctx: c, scales: { x, y } } = chart;
+      chart.getDatasetMeta(0).data.forEach((bar, i) => {
+        const km = achieved[i];
+        if (km <= 0) return;
+        const pace = paces[i];
+        const xEnd = x.getPixelForValue(km);
+        const yMid = bar.y;
+        const barH = bar.height;
+        const kmTxt = km.toFixed(2) + "km";
+        const paceTxt = pace ? fmtPace(pace) + "/km" : null;
+        const fontSize = Math.min(13, barH * 0.48);
+
+        c.save();
+        c.font = `600 ${fontSize}px -apple-system, sans-serif`;
+        c.textBaseline = "middle";
+        const textW = c.measureText(kmTxt).width;
+        const xOrigin = x.getPixelForValue(0);
+        const inside = (xEnd - xOrigin) > textW + 16;
+
+        if (inside) {
+          c.fillStyle = "#fff";
+          c.fillText(kmTxt, xEnd - textW - 8, yMid - (paceTxt ? 5 : 0));
+          if (paceTxt) {
+            c.font = `500 ${Math.min(10, barH * 0.36)}px -apple-system, sans-serif`;
+            c.fillStyle = "rgba(255,255,255,0.8)";
+            c.fillText(paceTxt, xEnd - c.measureText(paceTxt).width - 8, yMid + 6);
+          }
+        } else {
+          c.fillStyle = "#1a1917";
+          c.fillText(kmTxt, xEnd + 6, yMid - (paceTxt ? 5 : 0));
+          if (paceTxt) {
+            c.font = `500 ${Math.min(10, barH * 0.36)}px -apple-system, sans-serif`;
+            c.fillStyle = "#6b6966";
+            c.fillText(paceTxt, xEnd + 6, yMid + 6);
+          }
+        }
+        c.restore();
+      });
+    }
+  };
+
   chartInstance = new Chart(ctx, {
     type: "bar",
     data: {
       labels,
-      datasets: [{ label: "누적 km", data: values, backgroundColor: colors.map(c=>c+"bb"), borderColor: colors, borderWidth: 1, borderRadius: 4 }]
+      datasets: [{
+        label: "달성",
+        data: achieved,
+        backgroundColor: colors.map(c => c + "cc"),
+        borderColor: colors,
+        borderWidth: 0,
+        borderRadius: 4
+      }]
     },
     options: {
       indexAxis: "y",
       responsive: true,
       maintainAspectRatio: false,
+      onClick(e, elements) {
+        if (elements.length) {
+          const name = sorted[elements[0].index][0];
+          openPersonModal(name);
+        }
+      },
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: c => {
-              const km = c.raw;
-              const remain = Math.max(0, target - km);
-              const pace = paces[c.dataIndex];
-              const paceStr = pace ? `  · 평균 ${fmtPace(pace)}/km` : "";
-              return ` ${km.toFixed(2)}km  (잔여 ${remain.toFixed(2)}km)${paceStr}`;
-            }
-          },
-          titleFont: { size: 14 }, bodyFont: { size: 13 }
-        },
+        tooltip: { enabled: false },
         annotation: {
           annotations: {
-            tl: {
-              type: "line", xMin: target, xMax: target,
-              borderColor: "#ef4444", borderWidth: 1.5, borderDash: [4,3],
-              label: { display: true, content: `목표 ${target}km`, position: "start", backgroundColor: "#ef4444", color: "#fff", font: { size: 11 }, padding: { x:5, y:2 }, yAdjust: -14 }
+            targetLine: {
+              type: "line",
+              xMin: target,
+              xMax: target,
+              borderColor: "#ef4444",
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              label: {
+                display: true,
+                content: `목표 ${target}km`,
+                position: "end",
+                backgroundColor: "#ef4444",
+                color: "#fff",
+                font: { size: 11, weight: "600" },
+                padding: { x: 6, y: 3 },
+                yAdjust: 6
+              }
             }
           }
         }
       },
       scales: {
-        x: { beginAtZero: true, grid: { color: "#e2e0db" }, ticks: { font: { size: 11 }, color: "#6b6966" } },
-        y: { grid: { display: false }, ticks: { font: { size: 13 }, color: "#1a1917" } }
+        x: {
+          beginAtZero: true,
+          max: Math.max(target * 1.1, ...achieved, 1),
+          grid: { color: "#e2e0db" },
+          ticks: { font: { size: 11 }, color: "#6b6966" }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 13 }, color: "#1a1917" }
+        }
+      },
+      onHover(e, elements) {
+        e.native.target.style.cursor = elements.length ? "pointer" : "default";
       }
     },
-    plugins: [Chart.registry.getPlugin("annotation")]
+    plugins: [Chart.registry.getPlugin("annotation"), labelPlugin]
   });
 }
 
@@ -764,6 +1317,9 @@ function renderRecords() {
   }
   container.innerHTML = sorted.map(r => {
     const pace = r.paceSeconds ? fmtPace(r.paceSeconds) + "/km" : null;
+    const delBtn = isAdmin
+      ? `<button class="record-delete" onclick="adminDeleteRecord('${r._id}','${r.name}',${r.score})" title="삭제">✕</button>`
+      : "";
     return `<div class="record-item">
       <div class="record-left">
         <span class="record-name">${r.name}</span>
@@ -773,6 +1329,7 @@ function renderRecords() {
         <span class="record-km">${r.score.toFixed(2)}km</span>
         ${pace ? `<span class="record-pace">${pace}</span>` : ""}
       </div>
+      ${delBtn}
     </div>`;
   }).join("");
 }
@@ -780,12 +1337,29 @@ function renderRecords() {
 // ── Refresh all ──
 async function refresh() {
   const snap = await col.get();
-  allRecords = snap.docs.map(d => d.data()).filter(r => r.score && r.score !== 0);
+  allRecords = snap.docs
+    .map(d => ({ ...d.data(), _id: d.id }))
+    .filter(r => r.score && r.score !== 0);
   const target = getTargetDistance();
   const dataMap = buildDataMap();
   renderSummary(dataMap, target);
   renderChart(dataMap, target);
   renderRecords();
+}
+
+async function loadConfig() {
+  try {
+    const doc = await configCol.doc("settings").get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.title) {
+        document.getElementById("appTitle").textContent = data.title;
+      }
+      if (data.customGoal !== undefined) {
+        customGoal = data.customGoal;
+      }
+    }
+  } catch(e) {}
 }
 
 // ── Add record ──
@@ -808,17 +1382,25 @@ window.addRecord = async function() {
       return;
     }
   }
+
+  // date — use selected date at noon KST to avoid timezone shift
+  const dateVal = document.getElementById("recordDate").value;
+  const timestamp = dateVal
+    ? new Date(dateVal + "T12:00:00+09:00").toISOString()
+    : new Date().toISOString();
+
   const btn = document.getElementById("addBtn");
   btn.disabled = true; btn.textContent = "저장 중...";
   try {
-    const payload = { name: selectedName, score, timestamp: new Date().toISOString() };
+    const payload = { name: selectedName, score, timestamp };
     if (paceSeconds !== null) payload.paceSeconds = paceSeconds;
     await col.add(payload);
     document.getElementById("scoreInput").value = "";
     document.getElementById("paceMin").value = "";
     document.getElementById("paceSec").value = "";
+    initDateInput();
     const paceMsg = paceSeconds ? ` · ${fmtPace(paceSeconds)}/km` : "";
-    showToast(`${selectedName} ${score}km${paceMsg} 추가됐어요 👏`);
+    showToast(`${selectedName} ${score}km${paceMsg} 추가됐어요 👏\n고생하셨습니다 👏👏👏`);
     await refresh();
   } catch(e) {
     showToast("저장 실패. 다시 시도해주세요.");
@@ -896,6 +1478,8 @@ window.deleteEvent = async function() {
 };
 
 window.onload = async function() {
+  initDateInput();
+  await loadConfig();
   await loadEvent();
   await refresh();
 };
