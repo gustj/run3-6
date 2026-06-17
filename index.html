@@ -1,249 +1,1039 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>3학년6반 러닝챌린지</title>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
-  <style>
-    body { font-family: sans-serif; margin: 2rem; }
-    input, select, button, label {
-      margin: 0.5rem 0;
-      padding: 1rem;
-      font-size: 1.5rem;
-    }
-    canvas, #recordTable {
-      height: 400px;
-    }
-    #recordTable {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 2rem;
-      font-size: 1.5rem;
-    }
-    #recordTable thead, #recordTable tbody {
-      display: block;
-    }
-    #recordTable tbody {
-      height: 400px;
-      overflow-y: auto;
-    }
-    #recordTable th, #recordTable td {
-      border: 1px solid #ccc;
-      padding: 1rem;
-      text-align: middle;
-      font-size: 1.5rem;
-    }
-    #recordTable thead tr {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-    }
-    #recordTable tbody tr {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-    }
-    h2 {
-      font-size: 2rem;
-      margin-top: 2rem;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3학년6반 러닝챌린지</title>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e2e0db;
+    --text: #1a1917;
+    --muted: #6b6966;
+    --accent: #2563eb;
+    --accent-light: #eff4ff;
+    --accent-text: #1d4ed8;
+    --success: #16a34a;
+    --success-light: #f0fdf4;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0.25rem 0 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .header .subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .target-badge {
+    font-size: 0.75rem;
+    color: var(--accent-text);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+  }
+
+  .summary-card .label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  .summary-card .value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .summary-card .sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Main layout */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  /* Input panel */
+  .input-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .input-panel h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .field select, .field input[type="number"] {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .field select:focus, .field input[type="number"]:focus {
+    border-color: var(--accent);
+    background: #fff;
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6966' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 2rem;
+  }
+
+  .add-btn {
+    width: 100%;
+    padding: 0.65rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .add-btn:hover { opacity: 0.9; }
+  .add-btn:active { transform: scale(0.98); }
+  .add-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Member progress list */
+  .member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .member-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .member-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+  }
+
+  .member-name { font-weight: 500; }
+
+  .member-km {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* Chart panel */
+  .chart-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+
+  .chart-panel h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .chart-wrap {
+    position: relative;
+    height: 280px;
+  }
+
+  /* Records */
+  .records-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+
+  .records-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .records-header h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .filter-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-wrap label {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .filter-wrap select {
+    font-size: 0.78rem;
+    padding: 3px 22px 3px 7px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6966' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 7px center;
+  }
+
+  .records-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+  }
+
+  .records-table thead th {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .records-table tbody tr {
+    border-bottom: 1px solid var(--bg);
+  }
+
+  .records-table tbody tr:hover td {
+    background: var(--bg);
+  }
+
+  .records-table tbody td {
+    padding: 0.55rem 0.5rem;
+    transition: background 0.1s;
+  }
+
+  .records-table td:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+
+  .records-table td .ts {
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  .rank-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 600;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .rank-1 { background: #fef3c7; color: #92400e; }
+  .rank-2 { background: #f1f5f9; color: #475569; }
+  .rank-3 { background: #fef2f2; color: #92400e; }
+
+  /* Event D-Day banner */
+  .event-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .event-banner.hidden { display: none; }
+
+  .event-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .dday-chip {
+    flex-shrink: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--accent-text);
+    background: var(--accent-light);
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    line-height: 1;
+  }
+
+  .dday-chip.today {
+    color: #fff;
+    background: var(--accent);
+  }
+
+  .dday-chip.past {
+    color: var(--muted);
+    background: var(--bg);
+  }
+
+  .event-info { min-width: 0; }
+
+  .event-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event-date {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .event-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .btn-ghost {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-ghost:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* Event form (inline, hidden by default) */
+  .event-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    display: none;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .event-form.open { display: flex; }
+
+  .event-form h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .event-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.6rem;
+    align-items: end;
+  }
+
+  .event-form input[type="text"],
+  .event-form input[type="date"] {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .event-form input:focus { border-color: var(--accent); background: #fff; }
+
+  .event-form label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .btn-save {
+    padding: 0.55rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+
+  .btn-save:hover { opacity: 0.9; }
+  .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  @media (max-width: 560px) {
+    .event-form-row { grid-template-columns: 1fr; }
+    .event-banner { flex-wrap: wrap; }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+    z-index: 999;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .loading {
+    color: var(--muted);
+    font-size: 0.82rem;
+    padding: 2rem 0;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: repeat(3, 1fr); }
+    .summary-card .value { font-size: 1.3rem; }
+  }
+</style>
 </head>
 <body>
-  <h1>쉬엄쉬엄 30km 달리 🏃‍♀️‍➡️🏖 </h1>
-  <label for="nameSelect">이름 선택:</label>
-  <select id="nameSelect">
-    <option value="현서">현서</option>
-    <option value="설희">설희</option>
-    <option value="미정">미정</option>
-    <option value="채림">채림</option>
-    <option value="성은">성은</option>
-    <option value="희연">희연</option>
-    <option value="예선">예선</option>
-    <option value="영채">영채</option>
-  </select>
-  <input id="scoreInput" placeholder="기록 입력" type="number" step="any">
-  <button onclick="addRecord()">기록 추가</button>
+<div class="page">
 
-  <canvas id="myChart" width="400" height="300"></canvas>
-  
-  <h2>Records</h2>
-  <table id="recordTable", width="400">
-    <thead>
-      <tr>
-        <th>이름</th>
-        <th>Timestamp</th>
-        <th>기록</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  
-  <script>
-    // Import the functions you need from the SDKs you need
-    // import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    
-    const firebaseConfig = {
-      apiKey: "AIzaSyAOR6JDTeZu9pk3_bcvN6oaa6KE0uUOyQ0",
-      authDomain: "run3-6.firebaseapp.com",
-      projectId: "run3-6",
-      storageBucket: "run3-6.firebasestorage.app",
-      messagingSenderId: "1095413394899",
-      appId: "1:1095413394899:web:560a45543a50ccb8b81326"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const collection = db.collection("records");
-    let chartInstance = null;
+  <div class="header">
+    <div>
+      <h1>쉬엄쉬엄 30km 달리기 🏃‍♀️</h1>
+      <p class="subtitle">3학년 6반 러닝 챌린지 · 2026.05.06 시작</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+      <div class="target-badge" id="targetBadge">오늘 목표 — km</div>
+      <button class="btn-ghost" onclick="toggleEventForm()" id="addEventBtn" style="font-size:0.75rem; padding:4px 10px;">+ 대회 등록</button>
+    </div>
+  </div>
 
-    const emojiPlugin = {
-      id: 'emojiPlugin',
-      afterDatasetsDraw(chart) {
-        const ctx = chart.ctx;
-        const dataset = chart.data.datasets[0].data;
-        const yScale = chart.scales.y;
-        const xScale = chart.scales.x;
-        ctx.font = '40px sans-serif';
-        ctx.textBaseline = 'middle';
-        dataset.forEach((value, index) => {
-          const y = yScale.getPixelForValue(index);
-          const x = xScale.getPixelForValue(value);
-          ctx.fillText('🏃‍♀️‍➡️', x + 1, y);
-        });
-      }
-    };
+  <!-- D-Day event banner -->
+  <div class="event-banner hidden" id="eventBanner">
+    <div class="event-left">
+      <div class="dday-chip" id="ddayChip">D-?</div>
+      <div class="event-info">
+        <div class="event-name" id="eventName">—</div>
+        <div class="event-date" id="eventDateLabel">—</div>
+      </div>
+    </div>
+    <div class="event-actions">
+      <button class="btn-ghost" onclick="toggleEventForm()">수정</button>
+      <button class="btn-ghost" onclick="deleteEvent()">삭제</button>
+    </div>
+  </div>
 
-    window.addRecord = async function () {
-      const name = document.getElementById("nameSelect").value.trim();
-      // const name = document.getElementById("nameInput").value.trim();
-      const score = parseFloat(document.getElementById("scoreInput").value);
-      if (!name || isNaN(score)) return alert("숫자를 정확히 입력해주세용");
+  <!-- Event form (toggle) -->
+  <div class="event-form" id="eventForm">
+    <h2>다음 대회 등록</h2>
+    <div class="event-form-row">
+      <div>
+        <label for="eventNameInput">대회 이름</label>
+        <input type="text" id="eventNameInput" placeholder="예: 서울 마라톤">
+      </div>
+      <div>
+        <label for="eventDateInput">대회 날짜</label>
+        <input type="date" id="eventDateInput">
+      </div>
+      <button class="btn-save" onclick="saveEvent()" id="saveEventBtn">저장</button>
+    </div>
+  </div>
 
-      await collection.add({ name, score, timestamp: new Date().toISOString() });
-      alert("고생하셨습니다👏👏👏");
-      drawChart();
-    };
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">팀 누적</div>
+      <div class="value" id="summaryTotal">—</div>
+      <div class="sub">km 합산</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">목표 달성</div>
+      <div class="value" id="summaryAhead">—</div>
+      <div class="sub">명 달성 / 8명</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">선두</div>
+      <div class="value" id="summaryLeader" style="font-size:1.15rem; padding-top:0.2rem">—</div>
+      <div class="sub" id="summaryLeaderKm">—</div>
+    </div>
+  </div>
 
-    function getTargetDistance() {
-      const startDate = new Date("2026-05-06T00:00:00+09:00");
-      const now = new Date();
-      const seoulOffset = 9 * 60 * 60 * 1000;
-      const today = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + seoulOffset);
-      const daysPassed = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1);
-      return Math.min(30, daysPassed); // 하루 1km, 최대 100km
+  <div class="main-grid">
+
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      <div class="input-panel">
+        <h2>기록 추가</h2>
+        <div class="field">
+          <label for="nameSelect">이름</label>
+          <select id="nameSelect">
+            <option value="현서">현서</option>
+            <option value="설희">설희</option>
+            <option value="미정">미정</option>
+            <option value="채림">채림</option>
+            <option value="성은">성은</option>
+            <option value="희연">희연</option>
+            <option value="예선">예선</option>
+            <option value="영채">영채</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="scoreInput">거리 (km)</label>
+          <input id="scoreInput" type="number" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <button class="add-btn" onclick="addRecord()" id="addBtn">추가</button>
+      </div>
+
+      <div class="input-panel">
+        <h2>개인 현황</h2>
+        <div class="member-list" id="memberList">
+          <div class="loading">불러오는 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-panel">
+      <h2>랭킹</h2>
+      <div class="chart-wrap">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="records-panel">
+    <div class="records-header">
+      <h2>기록 내역</h2>
+      <div class="filter-wrap">
+        <label for="filterSelect">필터</label>
+        <select id="filterSelect" onchange="renderTable()">
+          <option value="">전체</option>
+          <option value="현서">현서</option>
+          <option value="설희">설희</option>
+          <option value="미정">미정</option>
+          <option value="채림">채림</option>
+          <option value="성은">성은</option>
+          <option value="희연">희연</option>
+          <option value="예선">예선</option>
+          <option value="영채">영채</option>
+        </select>
+      </div>
+    </div>
+    <table class="records-table">
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>날짜</th>
+          <th style="text-align:right">거리</th>
+        </tr>
+      </thead>
+      <tbody id="recordsTbody">
+        <tr><td colspan="3" class="loading">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAOR6JDTeZu9pk3_bcvN6oaa6KE0uUOyQ0",
+  authDomain: "run3-6.firebaseapp.com",
+  projectId: "run3-6",
+  storageBucket: "run3-6.firebasestorage.app",
+  messagingSenderId: "1095413394899",
+  appId: "1:1095413394899:web:560a45543a50ccb8b81326"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const col = db.collection("records");
+const eventCol = db.collection("events");
+
+const MEMBERS = ["현서","설희","미정","채림","성은","희연","예선","영채"];
+const COLORS = ["#2563eb","#7c3aed","#db2777","#ea580c","#16a34a","#0891b2","#d97706","#64748b"];
+
+let chartInstance = null;
+let allRecords = [];
+let currentEventId = null;
+
+function getTargetDistance() {
+  const start = new Date("2026-05-06T00:00:00+09:00");
+  const now = new Date();
+  const kst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 9 * 3600000);
+  const days = Math.max(0, Math.floor((kst - start) / 86400000) + 1);
+  return Math.min(30, days);
+}
+
+function calcDday(dateStr) {
+  const now = new Date();
+  const kst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 9 * 3600000);
+  const today = new Date(kst.getFullYear(), kst.getMonth(), kst.getDate());
+  const target = new Date(dateStr + "T00:00:00");
+  const diff = Math.round((target - today) / 86400000);
+  return diff;
+}
+
+function renderEvent(name, dateStr) {
+  const diff = calcDday(dateStr);
+  const chip = document.getElementById("ddayChip");
+  const banner = document.getElementById("eventBanner");
+
+  if (diff > 0) {
+    chip.textContent = `D-${diff}`;
+    chip.className = "dday-chip";
+  } else if (diff === 0) {
+    chip.textContent = "D-Day";
+    chip.className = "dday-chip today";
+  } else {
+    chip.textContent = `D+${Math.abs(diff)}`;
+    chip.className = "dday-chip past";
+  }
+
+  document.getElementById("eventName").textContent = name;
+  const d = new Date(dateStr + "T00:00:00");
+  document.getElementById("eventDateLabel").textContent =
+    `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+
+  banner.classList.remove("hidden");
+  document.getElementById("addEventBtn").textContent = "";
+  document.getElementById("addEventBtn").style.display = "none";
+}
+
+async function loadEvent() {
+  try {
+    const snap = await eventCol.orderBy("createdAt", "desc").limit(1).get();
+    if (!snap.empty) {
+      const doc = snap.docs[0];
+      currentEventId = doc.id;
+      const { name, date } = doc.data();
+      renderEvent(name, date);
     }
+  } catch(e) {
+    // events collection may not exist yet — that's fine
+  }
+}
 
-    window.drawChart = async function () {
-      const snapshot = await collection.get();
-      const dataMap = {};
+window.toggleEventForm = function() {
+  const form = document.getElementById("eventForm");
+  const isOpen = form.classList.contains("open");
+  if (isOpen) {
+    form.classList.remove("open");
+  } else {
+    form.classList.add("open");
+    if (currentEventId) {
+      document.getElementById("eventNameInput").value = document.getElementById("eventName").textContent;
+      const label = document.getElementById("eventDateLabel").textContent;
+      // pre-fill date input from banner label
+      const d = new Date(document.getElementById("eventDateLabel").textContent
+        .replace("년 ", "-").replace("월 ", "-").replace("일", "").trim());
+      const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      document.getElementById("eventDateInput").value = iso;
+    }
+  }
+};
 
-      snapshot.forEach(doc => {
-        const { name, score } = doc.data();
-        if (!dataMap[name]) dataMap[name] = 0;
-        dataMap[name] += score;
-      });
+window.saveEvent = async function() {
+  const name = document.getElementById("eventNameInput").value.trim();
+  const date = document.getElementById("eventDateInput").value;
+  if (!name || !date) { showToast("이름과 날짜를 모두 입력해주세요."); return; }
 
-      const dataArray = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
-      // const labels = dataArray.map(item => item[0]);
-      const labels = dataArray.map((item, index) => {
-        const emoji = index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : '';
-        return item[0] + emoji;
-      });
-      const values = dataArray.map(item => item[1]);
-      const targetDistance = getTargetDistance();
+  const btn = document.getElementById("saveEventBtn");
+  btn.disabled = true; btn.textContent = "저장 중...";
 
-      
-      const tbody = document.getElementById("recordTable").querySelector("tbody");
-      tbody.innerHTML = "";
+  try {
+    if (currentEventId) {
+      await eventCol.doc(currentEventId).set({ name, date, createdAt: new Date().toISOString() });
+    } else {
+      const ref = await eventCol.add({ name, date, createdAt: new Date().toISOString() });
+      currentEventId = ref.id;
+    }
+    renderEvent(name, date);
+    document.getElementById("eventForm").classList.remove("open");
+    document.getElementById("eventNameInput").value = "";
+    document.getElementById("eventDateInput").value = "";
+    showToast(`${name} 등록됐어요 🏁`);
+  } catch(e) {
+    showToast("저장 실패. 다시 시도해주세요.");
+  }
+  btn.disabled = false; btn.textContent = "저장";
+};
 
-      const records = snapshot.docs
-      .map(doc => ({ ...doc.data() }))
-      .filter(rec => rec.score !== 0)
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+window.deleteEvent = async function() {
+  if (!currentEventId) return;
+  try {
+    await eventCol.doc(currentEventId).delete();
+    currentEventId = null;
+    document.getElementById("eventBanner").classList.add("hidden");
+    document.getElementById("eventForm").classList.remove("open");
+    document.getElementById("addEventBtn").style.display = "";
+    document.getElementById("addEventBtn").textContent = "+ 대회 등록";
+    showToast("대회 일정이 삭제됐어요.");
+  } catch(e) {
+    showToast("삭제 실패. 다시 시도해주세요.");
+  }
+};
 
-      records.forEach(rec => {  // timestamp 포매팅
-        const date = new Date(rec.timestamp);
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        const h = String(date.getHours()).padStart(2, '0');
-        const min = String(date.getMinutes()).padStart(2, '0');
-        const formatted = `${y}-${m}-${d} ${h}:${min}`;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-        <td>${rec.name}</td>
-        <td>${formatted}</td>
-        <td>${rec.score}km</td>
-        `;
-        tbody.appendChild(tr);
-      });
-      
-      const decoratedLabels = labels.map((label, i) => `${label}  🏃‍♀️‍➡️`);
-      const ctx = document.getElementById("myChart").getContext("2d");
-      if (chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            label: "누적 기록",
-            data: values,
-            backgroundColor: "rgba(54, 162, 235, 0.6)"
-          }]
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const p = n => String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function buildDataMap() {
+  const map = {};
+  MEMBERS.forEach(n => map[n] = 0);
+  allRecords.forEach(r => { if (map[r.name] !== undefined) map[r.name] += r.score; });
+  return map;
+}
+
+function renderSummary(dataMap, target) {
+  const vals = Object.values(dataMap);
+  const total = vals.reduce((a,b) => a+b, 0);
+  const ahead = vals.filter(v => v >= target).length;
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+
+  document.getElementById("summaryTotal").textContent = total.toFixed(1);
+  document.getElementById("summaryAhead").textContent = ahead;
+  document.getElementById("summaryLeader").textContent = sorted[0][0];
+  document.getElementById("summaryLeaderKm").textContent = sorted[0][1].toFixed(2) + "km";
+  document.getElementById("targetBadge").textContent = `오늘 목표 ${target}km`;
+}
+
+function renderMemberList(dataMap, target) {
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+  const container = document.getElementById("memberList");
+  container.innerHTML = sorted.map(([name, km], i) => {
+    const pct = Math.min(100, target > 0 ? (km / target) * 100 : 0);
+    const color = COLORS[MEMBERS.indexOf(name)] || "#2563eb";
+    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
+    const remain = Math.max(0, target - km);
+    return `
+      <div class="member-row">
+        <div class="member-info">
+          <span class="member-name">${medal ? medal + " " : ""}${name}</span>
+          <span class="member-km">${km.toFixed(2)}km (-${remain.toFixed(2)})</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${pct}%; background:${color}"></div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function renderChart(dataMap, target) {
+  const sorted = Object.entries(dataMap).sort((a,b) => b[1]-a[1]);
+  const labels = sorted.map(([n],i) => {
+    const m = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+    return m ? `${m} ${n}` : n;
+  });
+  const values = sorted.map(([,v]) => v);
+  const colors = sorted.map(([n]) => COLORS[MEMBERS.indexOf(n)] || "#2563eb");
+
+  const ctx = document.getElementById("myChart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "누적 km",
+        data: values,
+        backgroundColor: colors.map(c => c + "cc"),
+        borderColor: colors,
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.raw;
+              const rem = Math.max(0, target - v);
+              return ` ${v.toFixed(2)}km  (목표까지 -${rem.toFixed(2)}km)`;
+            }
+          },
+          titleFont: { size: 13 },
+          bodyFont: { size: 13 }
         },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          plugins: {
-            legend: { labels: { font: { size: 20 } } },
-            tooltip: {
-              callbacks: {
-                label: ctx => {
-                  const value = ctx.raw;
-                  const remain = Math.max(targetDistance - value, 0);
-                  return ` ${value.toFixed(2)}km (-${remain.toFixed(2)}km)`;
-                }
-              },
-              titleFont: { size: 20 },
-              bodyFont: { size: 20 }
-            },
-            annotation: {
-              annotations: {
-                line1: {
-                  type: 'line',
-                  borderColor: 'red',
-                  borderWidth: 2,
-                  xMin: targetDistance,
-                  xMax: targetDistance,
-                  label: {
-                    enabled: true,
-                    content: `목표 ${targetDistance}km`,
-                    position: 'start',
-                    backgroundColor: 'red',
-                    color: 'white',
-                    yAdjust: -20,
-                    font: {
-                      size: 18,
-                      weight: 'bold'
-                    }
-                  }
-                }
+        annotation: {
+          annotations: {
+            targetLine: {
+              type: "line",
+              xMin: target,
+              xMax: target,
+              borderColor: "#ef4444",
+              borderWidth: 1.5,
+              borderDash: [4, 3],
+              label: {
+                display: true,
+                content: `목표 ${target}km`,
+                position: "start",
+                backgroundColor: "#ef4444",
+                color: "#fff",
+                font: { size: 11, weight: "500" },
+                padding: { x: 6, y: 3 },
+                yAdjust: -14
               }
             }
-            
-          },
-          scales: {
-            x: { beginAtZero: true, ticks :{ font: { size: 32 } } },
-            y: { ticks :{ font: { size: 32 } } }
           }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: "#e2e0db" },
+          ticks: { font: { size: 11 }, color: "#6b6966" }
         },
-        plugins: [Chart.registry.getPlugin('annotation'), emojiPlugin]
-      });
-    };
-    window.onload = drawChart;
-  </script>
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 12 }, color: "#1a1917" }
+        }
+      }
+    },
+    plugins: [Chart.registry.getPlugin("annotation")]
+  });
+}
+
+function renderTable() {
+  const filter = document.getElementById("filterSelect").value;
+  const rows = filter ? allRecords.filter(r => r.name === filter) : allRecords;
+  const sorted = [...rows].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const tbody = document.getElementById("recordsTbody");
+
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="3" class="loading">기록이 없습니다.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = sorted.map(r => `
+    <tr>
+      <td>${r.name}</td>
+      <td><span class="ts">${fmtDate(r.timestamp)}</span></td>
+      <td>${r.score.toFixed(2)}km</td>
+    </tr>`).join("");
+}
+
+async function refresh() {
+  const snapshot = await col.get();
+  allRecords = snapshot.docs
+    .map(d => d.data())
+    .filter(r => r.score && r.score !== 0);
+
+  const target = getTargetDistance();
+  const dataMap = buildDataMap();
+
+  renderSummary(dataMap, target);
+  renderMemberList(dataMap, target);
+  renderChart(dataMap, target);
+  renderTable();
+}
+
+window.addRecord = async function() {
+  const name = document.getElementById("nameSelect").value;
+  const score = parseFloat(document.getElementById("scoreInput").value);
+  if (!name || isNaN(score) || score <= 0) {
+    showToast("거리를 올바르게 입력해주세요.");
+    return;
+  }
+  const btn = document.getElementById("addBtn");
+  btn.disabled = true;
+  btn.textContent = "저장 중...";
+  try {
+    await col.add({ name, score, timestamp: new Date().toISOString() });
+    document.getElementById("scoreInput").value = "";
+    showToast(`${name} ${score}km 추가됐어요 👏`);
+    await refresh();
+  } catch(e) {
+    showToast("저장 실패. 다시 시도해주세요.");
+  }
+  btn.disabled = false;
+  btn.textContent = "추가";
+};
+
+window.renderTable = renderTable;
+
+window.onload = async function() {
+  await loadEvent();
+  await refresh();
+};
+</script>
 </body>
 </html>
