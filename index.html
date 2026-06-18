@@ -253,6 +253,29 @@ body {
   gap: 0.85rem;
 }
 
+/* run type toggle */
+.run-type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.run-type-btn {
+  padding: 0.7rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  text-align: center;
+  transition: all 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.run-type-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+.run-type-btn:active { opacity: 0.75; }
+
 /* Name picker grid */
 .name-grid {
   display: grid;
@@ -709,13 +732,21 @@ input[type="date"].form-date:focus { border-color: var(--accent); background: #f
         <input type="date" class="form-date" id="recordDate">
       </div>
       <div>
+        <label class="form-label">러닝 유형</label>
+        <div class="run-type-row">
+          <button class="run-type-btn selected" data-type="outdoor" onclick="selectRunType(this)">🌤 야외</button>
+          <button class="run-type-btn" data-type="treadmill" onclick="selectRunType(this)">🏃 러닝머신</button>
+        </div>
+      </div>
+      <div>
         <label class="form-label">거리</label>
         <div class="km-row">
           <input class="km-input" type="tel" id="scoreInput" placeholder="0.00" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
           <span class="km-unit">km</span>
         </div>
       </div>
-      <div>
+      <!-- 야외: 페이스 입력 -->
+      <div id="paceSection">
         <label class="form-label">평균 페이스 <span style="font-weight:400;text-transform:none">(선택)</span></label>
         <div class="pace-row">
           <input class="pace-input" type="tel" id="paceMin" placeholder="5" inputmode="numeric" pattern="[0-9]*">
@@ -724,6 +755,19 @@ input[type="date"].form-date:focus { border-color: var(--accent); background: #f
           <span class="pace-unit">분:초 / km</span>
         </div>
         <div class="pace-optional">입력하지 않으면 페이스 없이 저장돼요.</div>
+      </div>
+      <!-- 러닝머신: 총 시간 입력 -->
+      <div id="timeSection" style="display:none">
+        <label class="form-label">총 시간</label>
+        <div class="pace-row">
+          <input class="pace-input" type="tel" id="timeHour" placeholder="0" inputmode="numeric" pattern="[0-9]*">
+          <span class="pace-unit" style="padding:0 2px">시간</span>
+          <input class="pace-input" type="tel" id="timeMin" placeholder="30" inputmode="numeric" pattern="[0-9]*">
+          <span class="pace-unit" style="padding:0 2px">분</span>
+          <input class="pace-input" type="tel" id="timeSec" placeholder="00" inputmode="numeric" pattern="[0-9]*">
+          <span class="pace-unit" style="padding:0 2px">초</span>
+        </div>
+        <div class="pace-optional" id="autoCalcPace">거리와 시간 입력 시 페이스 자동 계산</div>
       </div>
       <button class="btn-primary" onclick="addRecord()" id="addBtn">기록 추가</button>
     </div>
@@ -879,6 +923,22 @@ let activeFilter = "";
 let selectedName = "현서";
 let isAdmin = false;
 let challengeConfig = { startDate: "2026-05-06", endDate: null, totalKm: 30 };
+let runType = "outdoor"; // "outdoor" | "treadmill"
+
+// ── Run type toggle ──
+window.selectRunType = function(btn) {
+  document.querySelectorAll(".run-type-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  runType = btn.dataset.type;
+  if (runType === "treadmill") {
+    document.getElementById("paceSection").style.display = "none";
+    document.getElementById("timeSection").style.display = "";
+  } else {
+    document.getElementById("paceSection").style.display = "";
+    document.getElementById("timeSection").style.display = "none";
+  }
+  updateAutoCalcPreview();
+};
 
 // ── Admin auth ──
 window.onAdminLockClick = function() {
@@ -992,7 +1052,23 @@ window.adminDeleteRecord = async function(docId, name, km) {
   } catch(e) { showToast("삭제 실패."); }
 };
 
-// ── Date default ──
+function updateAutoCalcPreview() {
+  if (runType !== "treadmill") return;
+  const km = parseFloat(document.getElementById("scoreInput").value);
+  const h = parseInt(document.getElementById("timeHour").value) || 0;
+  const m = parseInt(document.getElementById("timeMin").value) || 0;
+  const s = parseInt(document.getElementById("timeSec").value) || 0;
+  const totalSec = h * 3600 + m * 60 + s;
+  const el = document.getElementById("autoCalcPace");
+  if (km > 0 && totalSec > 0) {
+    const paceSec = totalSec / km;
+    el.textContent = `자동 계산 페이스: ${fmtPace(paceSec)}/km`;
+    el.style.color = "var(--accent-text)";
+  } else {
+    el.textContent = "거리와 시간 입력 시 페이스 자동 계산";
+    el.style.color = "";
+  }
+}
 function initDateInput() {
   const now = new Date();
   const kst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 9 * 3600000);
@@ -1099,9 +1175,14 @@ window.openPersonModal = function(name) {
   document.getElementById("personRecords").innerHTML = sorted.length
     ? sorted.map(r => {
         const pace = r.paceSeconds ? fmtPace(r.paceSeconds) + "/km" : null;
+        const typeBadge = r.runType === "treadmill"
+          ? `<span style="font-size:0.65rem;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:4px;padding:1px 5px;margin-left:4px">실내</span>`
+          : r.runType === "outdoor"
+          ? `<span style="font-size:0.65rem;background:#eff4ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:4px;padding:1px 5px;margin-left:4px">야외</span>`
+          : "";
         return `<div class="record-item">
           <div class="record-left">
-            <span class="record-name">${fmtDate(r.timestamp)}</span>
+            <span class="record-name">${fmtDate(r.timestamp)}${typeBadge}</span>
           </div>
           <div class="record-right">
             <span class="record-km">${r.score.toFixed(2)}km</span>
@@ -1281,7 +1362,7 @@ function renderChart(dataMap, target) {
 
         // measure widths for inside/outside decision
         c.font = `600 ${fontSize}px -apple-system, sans-serif`;
-        const kmW = c.measureText(km.toFixed(2) + "km ").width;
+        const kmW = c.measureText(km.toFixed(2) + "km").width;
         c.font = `400 ${smallSize}px -apple-system, sans-serif`;
         const remStr = remain > 0 ? ` (-${remain.toFixed(2)}km)` : " ✓";
         const remW = c.measureText(remStr).width;
@@ -1407,12 +1488,17 @@ function renderRecords() {
   }
   container.innerHTML = sorted.map(r => {
     const pace = r.paceSeconds ? fmtPace(r.paceSeconds) + "/km" : null;
+    const typeBadge = r.runType === "treadmill"
+      ? `<span style="font-size:0.65rem;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:4px;padding:1px 5px;margin-left:4px">실내</span>`
+      : r.runType === "outdoor"
+      ? `<span style="font-size:0.65rem;background:#eff4ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:4px;padding:1px 5px;margin-left:4px">야외</span>`
+      : "";
     const delBtn = isAdmin
       ? `<button class="record-delete" onclick="adminDeleteRecord('${r._id}','${r.name}',${r.score})" title="삭제">✕</button>`
       : "";
     return `<div class="record-item">
       <div class="record-left">
-        <span class="record-name">${r.name}</span>
+        <span class="record-name">${r.name}${typeBadge}</span>
         <span class="record-ts">${fmtDate(r.timestamp)}</span>
       </div>
       <div class="record-right">
@@ -1452,24 +1538,35 @@ async function loadConfig() {
 window.addRecord = async function() {
   const score = parseFloat(document.getElementById("scoreInput").value);
   if (!selectedName || isNaN(score) || score <= 0) {
-    showToast("이름과 거리를 확인해주세요.");
-    return;
+    showToast("이름과 거리를 확인해주세요."); return;
   }
-  const paceMinVal = document.getElementById("paceMin").value;
-  const paceSecVal = document.getElementById("paceSec").value;
+
   let paceSeconds = null;
-  if (paceMinVal !== "" || paceSecVal !== "") {
-    const m = parseInt(paceMinVal) || 0;
-    const s = parseInt(paceSecVal) || 0;
-    if (m >= 0 && s >= 0 && s < 60 && (m + s) > 0) {
-      paceSeconds = m * 60 + s;
+
+  if (runType === "treadmill") {
+    const h = parseInt(document.getElementById("timeHour").value) || 0;
+    const m = parseInt(document.getElementById("timeMin").value) || 0;
+    const s = parseInt(document.getElementById("timeSec").value) || 0;
+    const totalSec = h * 3600 + m * 60 + s;
+    if (totalSec > 0) {
+      paceSeconds = Math.round(totalSec / score);
     } else {
-      showToast("페이스 형식을 확인해주세요. (예: 5분 30초)");
-      return;
+      showToast("총 시간을 입력해주세요."); return;
+    }
+  } else {
+    const paceMinVal = document.getElementById("paceMin").value;
+    const paceSecVal = document.getElementById("paceSec").value;
+    if (paceMinVal !== "" || paceSecVal !== "") {
+      const pm = parseInt(paceMinVal) || 0;
+      const ps = parseInt(paceSecVal) || 0;
+      if (pm >= 0 && ps >= 0 && ps < 60 && (pm + ps) > 0) {
+        paceSeconds = pm * 60 + ps;
+      } else {
+        showToast("페이스 형식을 확인해주세요. (예: 5분 30초)"); return;
+      }
     }
   }
 
-  // date — use selected date at noon KST to avoid timezone shift
   const dateVal = document.getElementById("recordDate").value;
   const timestamp = dateVal
     ? new Date(dateVal + "T12:00:00+09:00").toISOString()
@@ -1478,12 +1575,18 @@ window.addRecord = async function() {
   const btn = document.getElementById("addBtn");
   btn.disabled = true; btn.textContent = "저장 중...";
   try {
-    const payload = { name: selectedName, score, timestamp };
+    const payload = { name: selectedName, score, timestamp, runType };
     if (paceSeconds !== null) payload.paceSeconds = paceSeconds;
     await col.add(payload);
+    // reset
     document.getElementById("scoreInput").value = "";
     document.getElementById("paceMin").value = "";
     document.getElementById("paceSec").value = "";
+    document.getElementById("timeHour").value = "";
+    document.getElementById("timeMin").value = "";
+    document.getElementById("timeSec").value = "";
+    document.getElementById("autoCalcPace").textContent = "거리와 시간 입력 시 페이스 자동 계산";
+    document.getElementById("autoCalcPace").style.color = "";
     initDateInput();
     const paceMsg = paceSeconds ? ` · ${fmtPace(paceSeconds)}/km` : "";
     showToast(`${selectedName} ${score}km${paceMsg} 추가됐어요 👏\n고생하셨습니다 👏👏👏`);
@@ -1573,6 +1676,10 @@ window.toggleEventForm = function() {
 
 window.onload = async function() {
   initDateInput();
+  // wire up auto-pace preview
+  ["scoreInput","timeHour","timeMin","timeSec"].forEach(id => {
+    document.getElementById(id).addEventListener("input", updateAutoCalcPreview);
+  });
   await loadConfig();
   await loadEvent();
   await refresh();
